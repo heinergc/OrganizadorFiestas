@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OrganizadorFiestas - 50 Aniversario</title>
+    <title>Organizador de Fiesta 50 Aniversario - GitHub Ready</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -270,82 +270,6 @@
             min-width: 60px;
         }
         
-        .completed-task {
-            background: #e8f5e8;
-            opacity: 0.8;
-        }
-        
-        .high-priority {
-            border-left: 4px solid #ff4757;
-        }
-        
-        .medium-priority {
-            border-left: 4px solid #ffa502;
-        }
-        
-        .low-priority {
-            border-left: 4px solid #2ed573;
-        }
-        
-        .confirmed {
-            background: #e8f5e8;
-            color: #27ae60;
-            font-weight: bold;
-        }
-        
-        .declined {
-            background: #fee;
-            color: #c53030;
-            font-weight: bold;
-        }
-        
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .completed-task {
-            background: #e8f5e8;
-            opacity: 0.8;
-        }
-        
-        .high-priority {
-            border-left: 4px solid #ff4757;
-        }
-        
-        .medium-priority {
-            border-left: 4px solid #ffa502;
-        }
-        
-        .low-priority {
-            border-left: 4px solid #2ed573;
-        }
-        
-        .confirmed {
-            background: #e8f5e8;
-            color: #27ae60;
-            font-weight: bold;
-        }
-        
-        .declined {
-            background: #fee;
-            color: #c53030;
-            font-weight: bold;
-        }
-        
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .filter-active {
-            background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%) !important;
-        }
-        
         .loading {
             display: inline-block;
             width: 20px;
@@ -375,8 +299,6 @@
         <div class="tabs">
             <button class="tab active" onclick="showTab('aportes')">💰 Aportes de la Familia</button>
             <button class="tab" onclick="showTab('gastos')">💸 Gastos de la Fiesta</button>
-            <button class="tab" onclick="showTab('tareas')">📝 Tareas</button>
-            <button class="tab" onclick="showTab('invitados')">👥 Invitados</button>
             <button class="tab" onclick="showTab('resumen')">📊 Resumen General</button>
         </div>
         
@@ -453,93 +375,7 @@
                 </div>
             </div>
             
-            <!-- HOJA 3: TAREAS -->
-            <div id="tareas" class="tab-pane">
-                <div class="instructions">
-                    <strong>💡 Instrucciones:</strong> Organiza todas las tareas necesarias para la fiesta. Asigna responsables, categoriza por tipo y marca como completadas cuando estén listas.
-                </div>
-                
-                <div style="display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap;" class="filter-buttons">
-                    <button class="btn filter-active" onclick="filtrarTareas('todas')" id="btnTodas">📋 Todas</button>
-                    <button class="btn" onclick="filtrarTareas('pendientes')" id="btnPendientes">⏳ Pendientes</button>
-                    <button class="btn" onclick="filtrarTareas('finalizadas')" id="btnFinalizadas">✅ Finalizadas</button>
-                </div>
-                
-                <table id="tablaTareas">
-                    <thead>
-                        <tr>
-                            <th>Tarea</th>
-                            <th>Categoría</th>
-                            <th>Responsable</th>
-                            <th>Fecha Límite</th>
-                            <th>Prioridad</th>
-                            <th>Estado</th>
-                            <th>Observaciones</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Los datos se cargarán desde SQLite -->
-                    </tbody>
-                </table>
-                
-                <div class="add-row">
-                    <button class="btn" onclick="agregarNuevaTarea()">➕ Agregar Tarea</button>
-                </div>
-            </div>
-            
-            <!-- HOJA 4: INVITADOS -->
-            <div id="invitados" class="tab-pane">
-                <div class="instructions">
-                    <strong>💡 Instrucciones:</strong> Gestiona la lista de invitados, controla confirmaciones y necesidades especiales. Mantén organizado quién viene y sus detalles importantes.
-                </div>
-                
-                <div class="summary-card" style="margin: 20px 0;">
-                    <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr);">
-                        <div class="summary-item">
-                            <h3>Total Invitados</h3>
-                            <p class="amount" id="totalInvitados">0</p>
-                        </div>
-                        <div class="summary-item">
-                            <h3>Confirmados</h3>
-                            <p class="amount" id="totalConfirmados">0</p>
-                        </div>
-                        <div class="summary-item">
-                            <h3>Pendientes</h3>
-                            <p class="amount" id="totalPendientes">0</p>
-                        </div>
-                        <div class="summary-item">
-                            <h3>No Asisten</h3>
-                            <p class="amount" id="totalNoAsisten">0</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <table id="tablaInvitados">
-                    <thead>
-                        <tr>
-                            <th>Nombre Completo</th>
-                            <th>Relación</th>
-                            <th>Teléfono</th>
-                            <th>Email</th>
-                            <th>Estado</th>
-                            <th>Acompañantes</th>
-                            <th>Necesidades Especiales</th>
-                            <th>Observaciones</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Los datos se cargarán desde SQLite -->
-                    </tbody>
-                </table>
-                
-                <div class="add-row">
-                    <button class="btn" onclick="agregarNuevoInvitado()">➕ Agregar Invitado</button>
-                </div>
-            </div>
-            
-            <!-- HOJA 5: RESUMEN GENERAL -->
+            <!-- HOJA 3: RESUMEN GENERAL -->
             <div id="resumen" class="tab-pane">
                 <div class="summary-card">
                     <h2 style="text-align: center; margin-bottom: 30px;">📊 Resumen Financiero</h2>
@@ -616,65 +452,6 @@
                 }
 
                 updateDBStatus('🟢 BD Conectada', 'db-connected');
-                
-                // Crear tablas nuevas si no existen (método más robusto)
-                try {
-                    // Verificar y crear tabla tareas
-                    const checkTareas = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='tareas'");
-                    const tareasExists = checkTareas.step();
-                    checkTareas.free();
-                    
-                    if (!tareasExists) {
-                        console.log('Creando tabla tareas...');
-                        const createTareasTable = `
-                            CREATE TABLE tareas (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                tarea TEXT NOT NULL,
-                                categoria TEXT,
-                                responsable TEXT,
-                                fecha_limite TEXT,
-                                prioridad TEXT DEFAULT 'media',
-                                estado TEXT DEFAULT 'pendiente',
-                                observaciones TEXT,
-                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                            );
-                        `;
-                        db.run(createTareasTable);
-                        console.log('Tabla tareas creada exitosamente');
-                    }
-
-                    // Verificar y crear tabla invitados
-                    const checkInvitados = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='invitados'");
-                    const invitadosExists = checkInvitados.step();
-                    checkInvitados.free();
-                    
-                    if (!invitadosExists) {
-                        console.log('Creando tabla invitados...');
-                        const createInvitadosTable = `
-                            CREATE TABLE invitados (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                nombre_completo TEXT NOT NULL,
-                                relacion TEXT,
-                                telefono TEXT,
-                                email TEXT,
-                                estado TEXT DEFAULT 'pendiente',
-                                acompanantes INTEGER DEFAULT 0,
-                                necesidades_especiales TEXT,
-                                observaciones TEXT,
-                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                            );
-                        `;
-                        db.run(createInvitadosTable);
-                        console.log('Tabla invitados creada exitosamente');
-                    }
-
-                } catch (error) {
-                    console.error('Error verificando/creando tablas:', error);
-                }
-
-                saveDatabase();
                 cargarDatos();
             } catch (error) {
                 console.error('Error inicializando SQLite:', error);
@@ -718,41 +495,8 @@
                 );
             `;
 
-            const createTareasTable = `
-                CREATE TABLE tareas (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    tarea TEXT NOT NULL,
-                    categoria TEXT,
-                    responsable TEXT,
-                    fecha_limite TEXT,
-                    prioridad TEXT DEFAULT 'media',
-                    estado TEXT DEFAULT 'pendiente',
-                    observaciones TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-            `;
-
-            const createInvitadosTable = `
-                CREATE TABLE invitados (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nombre_completo TEXT NOT NULL,
-                    relacion TEXT,
-                    telefono TEXT,
-                    email TEXT,
-                    estado TEXT DEFAULT 'pendiente',
-                    acompanantes INTEGER DEFAULT 0,
-                    necesidades_especiales TEXT,
-                    observaciones TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-            `;
-
             db.run(createAportesTable);
             db.run(createGastosTable);
-            db.run(createTareasTable);
-            db.run(createInvitadosTable);
             saveDatabase();
         }
 
@@ -777,262 +521,13 @@
             
             if (tabName === 'resumen') {
                 actualizarResumen();
-            } else if (tabName === 'invitados') {
-                actualizarEstadisticasInvitados();
-            } else if (tabName === 'tareas') {
-                // Asegurar que se muestren todas las tareas por defecto
-                setTimeout(() => {
-                    filtrarTareas('todas');
-                }, 100);
             }
         }
 
         function cargarDatos() {
             cargarAportes();
             cargarGastos();
-            cargarTareas();
-            cargarInvitados();
             actualizarTotales();
-        }
-
-        // FUNCIONES PARA TAREAS
-        function cargarTareas() {
-            const tbody = document.querySelector('#tablaTareas tbody');
-            tbody.innerHTML = '';
-
-            try {
-                const stmt = db.prepare("SELECT * FROM tareas ORDER BY created_at DESC");
-                while (stmt.step()) {
-                    const row = stmt.getAsObject();
-                    
-                    const tr = document.createElement('tr');
-                    if (row.estado === 'completada') {
-                        tr.classList.add('completed-task');
-                    }
-                    if (row.prioridad === 'alta') {
-                        tr.classList.add('high-priority');
-                    } else if (row.prioridad === 'media') {
-                        tr.classList.add('medium-priority');
-                    } else {
-                        tr.classList.add('low-priority');
-                    }
-                    
-                    tr.innerHTML = `
-                        <td><input type="text" value="${row.tarea || ''}" onchange="actualizarTarea(${row.id}, 'tarea', this.value)"></td>
-                        <td>
-                            <select onchange="actualizarTarea(${row.id}, 'categoria', this.value)">
-                                <option value="">Seleccionar...</option>
-                                <option value="planificacion" ${row.categoria === 'planificacion' ? 'selected' : ''}>📋 Planificación</option>
-                                <option value="decoracion" ${row.categoria === 'decoracion' ? 'selected' : ''}>🎀 Decoración</option>
-                                <option value="comida" ${row.categoria === 'comida' ? 'selected' : ''}>🍽️ Comida</option>
-                                <option value="musica" ${row.categoria === 'musica' ? 'selected' : ''}>🎵 Música</option>
-                                <option value="invitaciones" ${row.categoria === 'invitaciones' ? 'selected' : ''}>💌 Invitaciones</option>
-                                <option value="logistica" ${row.categoria === 'logistica' ? 'selected' : ''}>🚛 Logística</option>
-                                <option value="otros" ${row.categoria === 'otros' ? 'selected' : ''}>📦 Otros</option>
-                            </select>
-                        </td>
-                        <td><input type="text" value="${row.responsable || ''}" onchange="actualizarTarea(${row.id}, 'responsable', this.value)"></td>
-                        <td><input type="date" value="${row.fecha_limite || ''}" onchange="actualizarTarea(${row.id}, 'fecha_limite', this.value)"></td>
-                        <td>
-                            <select onchange="actualizarTarea(${row.id}, 'prioridad', this.value)">
-                                <option value="baja" ${row.prioridad === 'baja' ? 'selected' : ''}>🟢 Baja</option>
-                                <option value="media" ${row.prioridad === 'media' ? 'selected' : ''}>🟡 Media</option>
-                                <option value="alta" ${row.prioridad === 'alta' ? 'selected' : ''}>🔴 Alta</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select onchange="actualizarTarea(${row.id}, 'estado', this.value)">
-                                <option value="pendiente" ${row.estado === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
-                                <option value="en_progreso" ${row.estado === 'en_progreso' ? 'selected' : ''}>🚧 En Progreso</option>
-                                <option value="completada" ${row.estado === 'completada' ? 'selected' : ''}>✅ Completada</option>
-                            </select>
-                        </td>
-                        <td><input type="text" value="${row.observaciones || ''}" onchange="actualizarTarea(${row.id}, 'observaciones', this.value)"></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-danger btn-small" onclick="eliminarTarea(${row.id})">🗑️</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-                stmt.free();
-            } catch (error) {
-                console.error('Error cargando tareas:', error);
-                // Si hay error, mostrar mensaje en la tabla
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No hay tareas registradas o hay un problema con la base de datos. Intenta agregar una nueva tarea.</td></tr>';
-            }
-        }
-
-        function agregarNuevaTarea() {
-            const stmt = db.prepare("INSERT INTO tareas (tarea) VALUES (?)");
-            stmt.run(['Nueva tarea']);
-            stmt.free();
-            saveDatabase();
-            cargarTareas();
-        }
-
-        function actualizarTarea(id, campo, valor) {
-            const stmt = db.prepare(`UPDATE tareas SET ${campo} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
-            stmt.run([valor, id]);
-            stmt.free();
-            saveDatabase();
-            
-            if (campo === 'estado' || campo === 'prioridad') {
-                cargarTareas();
-            }
-        }
-
-        function eliminarTarea(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
-                const stmt = db.prepare("DELETE FROM tareas WHERE id = ?");
-                stmt.run([id]);
-                stmt.free();
-                saveDatabase();
-                cargarTareas();
-            }
-        }
-
-        function filtrarTareas(filtro) {
-            // Remover clase activa de todos los botones
-            document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
-                btn.classList.remove('filter-active');
-            });
-            
-            // Agregar clase activa al botón clickeado
-            let btnElement;
-            if (filtro === 'todas') {
-                btnElement = document.getElementById('btnTodas');
-            } else if (filtro === 'pendientes') {
-                btnElement = document.getElementById('btnPendientes');
-            } else if (filtro === 'finalizadas') {
-                btnElement = document.getElementById('btnFinalizadas');
-            }
-            
-            if (btnElement) {
-                btnElement.classList.add('filter-active');
-            }
-            
-            const tbody = document.querySelector('#tablaTareas tbody');
-            const rows = tbody.querySelectorAll('tr');
-            
-            rows.forEach(row => {
-                const estadoSelect = row.querySelector('select[onchange*="estado"]');
-                const estado = estadoSelect ? estadoSelect.value : '';
-                
-                if (filtro === 'todas') {
-                    row.style.display = '';
-                } else if (filtro === 'pendientes') {
-                    row.style.display = (estado === 'pendiente' || estado === 'en_progreso') ? '' : 'none';
-                } else if (filtro === 'finalizadas') {
-                    row.style.display = estado === 'completada' ? '' : 'none';
-                }
-            });
-        }
-
-        // FUNCIONES PARA INVITADOS
-        function cargarInvitados() {
-            const tbody = document.querySelector('#tablaInvitados tbody');
-            tbody.innerHTML = '';
-
-            try {
-                const stmt = db.prepare("SELECT * FROM invitados ORDER BY created_at DESC");
-                while (stmt.step()) {
-                    const row = stmt.getAsObject();
-                    
-                    const tr = document.createElement('tr');
-                    if (row.estado === 'confirmado') {
-                        tr.classList.add('confirmed');
-                    } else if (row.estado === 'no_asiste') {
-                        tr.classList.add('declined');
-                    }
-                    
-                    tr.innerHTML = `
-                        <td><input type="text" value="${row.nombre_completo || ''}" onchange="actualizarInvitado(${row.id}, 'nombre_completo', this.value)"></td>
-                        <td>
-                            <select onchange="actualizarInvitado(${row.id}, 'relacion', this.value)">
-                                <option value="">Seleccionar...</option>
-                                <option value="familia" ${row.relacion === 'familia' ? 'selected' : ''}>👨‍👩‍👧‍👦 Familia</option>
-                                <option value="amigos" ${row.relacion === 'amigos' ? 'selected' : ''}>👥 Amigos</option>
-                                <option value="trabajo" ${row.relacion === 'trabajo' ? 'selected' : ''}>💼 Trabajo</option>
-                                <option value="vecinos" ${row.relacion === 'vecinos' ? 'selected' : ''}>🏘️ Vecinos</option>
-                                <option value="otros" ${row.relacion === 'otros' ? 'selected' : ''}>👤 Otros</option>
-                            </select>
-                        </td>
-                        <td><input type="tel" value="${row.telefono || ''}" onchange="actualizarInvitado(${row.id}, 'telefono', this.value)"></td>
-                        <td><input type="email" value="${row.email || ''}" onchange="actualizarInvitado(${row.id}, 'email', this.value)"></td>
-                        <td>
-                            <select onchange="actualizarInvitado(${row.id}, 'estado', this.value)">
-                                <option value="pendiente" ${row.estado === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
-                                <option value="confirmado" ${row.estado === 'confirmado' ? 'selected' : ''}>✅ Confirmado</option>
-                                <option value="no_asiste" ${row.estado === 'no_asiste' ? 'selected' : ''}>❌ No Asiste</option>
-                            </select>
-                        </td>
-                        <td><input type="number" min="0" value="${row.acompanantes || 0}" onchange="actualizarInvitado(${row.id}, 'acompanantes', this.value)"></td>
-                        <td><input type="text" value="${row.necesidades_especiales || ''}" onchange="actualizarInvitado(${row.id}, 'necesidades_especiales', this.value)" placeholder="Alergias, dietas especiales, etc."></td>
-                        <td><input type="text" value="${row.observaciones || ''}" onchange="actualizarInvitado(${row.id}, 'observaciones', this.value)"></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-danger btn-small" onclick="eliminarInvitado(${row.id})">🗑️</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-                stmt.free();
-            } catch (error) {
-                console.error('Error cargando invitados:', error);
-                // Si hay error, mostrar mensaje en la tabla
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px;">No hay invitados registrados o hay un problema con la base de datos. Intenta agregar un nuevo invitado.</td></tr>';
-            }
-        }
-
-        function agregarNuevoInvitado() {
-            const stmt = db.prepare("INSERT INTO invitados (nombre_completo) VALUES (?)");
-            stmt.run(['Nuevo invitado']);
-            stmt.free();
-            saveDatabase();
-            cargarInvitados();
-            actualizarEstadisticasInvitados();
-        }
-
-        function actualizarInvitado(id, campo, valor) {
-            const stmt = db.prepare(`UPDATE invitados SET ${campo} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
-            stmt.run([valor, id]);
-            stmt.free();
-            saveDatabase();
-            
-            if (campo === 'estado') {
-                cargarInvitados();
-                actualizarEstadisticasInvitados();
-            }
-        }
-
-        function eliminarInvitado(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar este invitado?')) {
-                const stmt = db.prepare("DELETE FROM invitados WHERE id = ?");
-                stmt.run([id]);
-                stmt.free();
-                saveDatabase();
-                cargarInvitados();
-                actualizarEstadisticasInvitados();
-            }
-        }
-
-        function actualizarEstadisticasInvitados() {
-            const stmt = db.prepare(`
-                SELECT 
-                    COUNT(*) as total,
-                    COUNT(CASE WHEN estado = 'confirmado' THEN 1 END) as confirmados,
-                    COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as pendientes,
-                    COUNT(CASE WHEN estado = 'no_asiste' THEN 1 END) as no_asisten,
-                    SUM(CASE WHEN estado = 'confirmado' THEN acompanantes + 1 ELSE 0 END) as total_asistentes
-                FROM invitados WHERE nombre_completo != ''
-            `);
-            stmt.step();
-            const stats = stmt.getAsObject();
-            stmt.free();
-
-            document.getElementById('totalInvitados').textContent = stats.total || 0;
-            document.getElementById('totalConfirmados').textContent = stats.confirmados || 0;
-            document.getElementById('totalPendientes').textContent = stats.pendientes || 0;
-            document.getElementById('totalNoAsisten').textContent = stats.no_asisten || 0;
         }
 
         function cargarAportes() {
@@ -1348,51 +843,6 @@
             const ws3 = XLSX.utils.aoa_to_sheet(resumenData);
             XLSX.utils.book_append_sheet(wb, ws3, 'Resumen General');
             
-            // Hoja 4: Tareas
-            const tareasData = [['ID', 'Tarea', 'Categoría', 'Responsable', 'Fecha Límite', 'Prioridad', 'Estado', 'Observaciones']];
-            
-            const tareasStmt = db.prepare("SELECT * FROM tareas ORDER BY id");
-            while (tareasStmt.step()) {
-                const row = tareasStmt.getAsObject();
-                tareasData.push([
-                    row.id,
-                    row.tarea || '',
-                    row.categoria || '',
-                    row.responsable || '',
-                    row.fecha_limite || '',
-                    row.prioridad || '',
-                    row.estado || '',
-                    row.observaciones || ''
-                ]);
-            }
-            tareasStmt.free();
-            
-            const ws4 = XLSX.utils.aoa_to_sheet(tareasData);
-            XLSX.utils.book_append_sheet(wb, ws4, 'Tareas');
-            
-            // Hoja 5: Invitados
-            const invitadosData = [['ID', 'Nombre Completo', 'Relación', 'Teléfono', 'Email', 'Estado', 'Acompañantes', 'Necesidades Especiales', 'Observaciones']];
-            
-            const invitadosStmt = db.prepare("SELECT * FROM invitados ORDER BY id");
-            while (invitadosStmt.step()) {
-                const row = invitadosStmt.getAsObject();
-                invitadosData.push([
-                    row.id,
-                    row.nombre_completo || '',
-                    row.relacion || '',
-                    row.telefono || '',
-                    row.email || '',
-                    row.estado || '',
-                    row.acompanantes || 0,
-                    row.necesidades_especiales || '',
-                    row.observaciones || ''
-                ]);
-            }
-            invitadosStmt.free();
-            
-            const ws5 = XLSX.utils.aoa_to_sheet(invitadosData);
-            XLSX.utils.book_append_sheet(wb, ws5, 'Invitados');
-            
             XLSX.writeFile(wb, 'Organizador_Fiesta_50_Aniversario_SQLite.xlsx');
             alert('¡Archivo Excel descargado exitosamente! 🎉');
         }
@@ -1449,11 +899,9 @@
 
         function limpiarBaseDatos() {
             if (confirm('⚠️ ¿Estás seguro de que quieres eliminar TODOS los datos?\n\nEsta acción no se puede deshacer.')) {
-                if (confirm('🚨 CONFIRMACIÓN FINAL: Se borrarán todos los aportes, gastos, tareas e invitados registrados.')) {
+                if (confirm('🚨 CONFIRMACIÓN FINAL: Se borrarán todos los aportes y gastos registrados.')) {
                     db.run("DELETE FROM aportes");
                     db.run("DELETE FROM gastos");
-                    db.run("DELETE FROM tareas");
-                    db.run("DELETE FROM invitados");
                     saveDatabase();
                     cargarDatos();
                     alert('✅ Base de datos limpiada exitosamente');
@@ -1464,12 +912,6 @@
         // Inicializar la aplicación cuando se carga la página
         window.addEventListener('load', async function() {
             await initSQLite();
-            // Inicializar filtros por defecto
-            setTimeout(() => {
-                if (document.getElementById('btnTodas')) {
-                    filtrarTareas('todas');
-                }
-            }, 500);
         });
     </script>
 </body>
