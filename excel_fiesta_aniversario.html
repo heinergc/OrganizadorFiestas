@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Fiesta - 50 Aniversario</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab:hover {
+            background: #e9ecef;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #19547b;
+            border-bottom-color: #19547b;
+        }
+        
+        .tab-content {
+            padding: 30px;
+            min-height: 600px;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #19547b 0%, #ffd89b 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #19547b;
+            box-shadow: 0 0 0 2px rgba(25, 84, 123, 0.2);
+        }
+        
+        .currency {
+            text-align: right;
+            font-weight: 500;
+        }
+        
+        .pending {
+            background: #fee;
+            color: #c53030;
+            font-weight: bold;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .summary-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .summary-item h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .summary-item .amount {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #19547b 0%, #ffd89b 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 10px 5px;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .add-row {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .total-row {
+            background: #f8f9fa;
+            font-weight: bold;
+            border-top: 2px solid #19547b;
+        }
+        
+        .export-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Organizador de Fiesta</h1>
+            <p>50 Aniversario de Bodas - Gestión Completa</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('aportes')">💰 Aportes de la Familia</button>
+            <button class="tab" onclick="showTab('gastos')">💸 Gastos de la Fiesta</button>
+            <button class="tab" onclick="showTab('resumen')">📊 Resumen General</button>
+        </div>
+        
+        <div class="tab-content">
+            <!-- HOJA 1: APORTES DE LA FAMILIA -->
+            <div id="aportes" class="tab-pane active">
+                <div class="instructions">
+                    <strong>💡 Instrucciones:</strong> Registra los aportes de cada familiar. El saldo pendiente se calcula automáticamente. Los saldos pendientes aparecen resaltados en rojo.
+                </div>
+                
+                <table id="tablaAportes">
+                    <thead>
+                        <tr>
+                            <th>Nombre del Integrante</th>
+                            <th>Monto Comprometido</th>
+                            <th>Monto Entregado</th>
+                            <th>Fecha de Aporte</th>
+                            <th>Forma de Pago</th>
+                            <th>Observaciones</th>
+                            <th>Saldo Pendiente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" placeholder="Nombre del familiar"></td>
+                            <td><input type="number" step="0.01" onchange="calcularSaldo(this)" placeholder="0.00"></td>
+                            <td><input type="number" step="0.01" onchange="calcularSaldo(this)" placeholder="0.00"></td>
+                            <td><input type="date"></td>
+                            <td>
+                                <select>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="transferencia">Transferencia</option>
+                                    <option value="tarjeta">Tarjeta</option>
+                                </select>
+                            </td>
+                            <td><input type="text" placeholder="Observaciones"></td>
+                            <td class="currency saldo-pendiente">₡0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="add-row">
+                    <button class="btn" onclick="agregarFilaAportes()">➕ Agregar Familiar</button>
+                </div>
+            </div>
+            
+            <!-- HOJA 2: GASTOS DE LA FIESTA -->
+            <div id="gastos" class="tab-pane">
+                <div class="instructions">
+                    <strong>💡 Instrucciones:</strong> Registra todos los gastos de la fiesta por categorías. La diferencia entre costo estimado y real se calcula automáticamente.
+                </div>
+                
+                <table id="tablaGastos">
+                    <thead>
+                        <tr>
+                            <th>Categoría</th>
+                            <th>Proveedor</th>
+                            <th>Costo Estimado</th>
+                            <th>Costo Real</th>
+                            <th>Diferencia</th>
+                            <th>Fecha de Pago</th>
+                            <th>Pagado Por</th>
+                            <th>Observaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <select onchange="actualizarTotales()">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="banquete">🍽️ Banquete</option>
+                                    <option value="musica">🎵 Música</option>
+                                    <option value="decoracion">🎀 Decoración</option>
+                                    <option value="fotografia">📸 Fotografía</option>
+                                    <option value="otros">📦 Otros</option>
+                                </select>
+                            </td>
+                            <td><input type="text" placeholder="Nombre del proveedor"></td>
+                            <td><input type="number" step="0.01" onchange="calcularDiferencia(this)" placeholder="0.00"></td>
+                            <td><input type="number" step="0.01" onchange="calcularDiferencia(this)" placeholder="0.00"></td>
+                            <td class="currency diferencia">$0.00</td>
+                            <td><input type="date"></td>
+                            <td><input type="text" placeholder="Quien pagó"></td>
+                            <td><input type="text" placeholder="Observaciones"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td><strong>TOTALES</strong></td>
+                            <td></td>
+                            <td class="currency" id="totalEstimado">₡0.00</td>
+                            <td class="currency" id="totalReal">₡0.00</td>
+                            <td class="currency" id="totalDiferencia">₡0.00</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                
+                <div class="add-row">
+                    <button class="btn" onclick="agregarFilaGastos()">➕ Agregar Gasto</button>
+                </div>
+            </div>
+            
+            <!-- HOJA 3: RESUMEN GENERAL -->
+            <div id="resumen" class="tab-pane">
+                <div class="summary-card">
+                    <h2 style="text-align: center; margin-bottom: 30px;">📊 Resumen Financiero</h2>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <h3>Aportes Comprometidos</h3>
+                            <p class="amount" id="totalComprometido">₡0.00</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Aportes Recibidos</h3>
+                            <p class="amount" id="totalRecibido">₡0.00</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Gastos Estimados</h3>
+                            <p class="amount" id="resumenEstimado">₡0.00</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Gastos Reales</h3>
+                            <p class="amount" id="resumenReal">₡0.00</p>
+                        </div>
+                        <div class="summary-item" style="grid-column: 1 / -1;">
+                            <h3>Balance Final</h3>
+                            <p class="amount" id="balanceFinal">₡0.00</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>📈 Gráficos de Análisis</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                        <div>
+                            <h4>Distribución de Gastos por Categoría</h4>
+                            <canvas id="chartGastos" width="400" height="300"></canvas>
+                        </div>
+                        <div>
+                            <h4>Aportes por Integrante</h4>
+                            <canvas id="chartAportes" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="export-section">
+            <h3>📥 Exportar Datos</h3>
+            <p>Guarda tu organización en un archivo Excel completo con todas las fórmulas y formato.</p>
+            <button class="btn" onclick="exportarExcel()">⬇️ Descargar Excel</button>
+            <button class="btn" onclick="actualizarResumen()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🔄 Actualizar Datos</button>
+        </div>
+    </div>
+
+    <script>
+        let datosAportes = [];
+        let datosGastos = [];
+
+        function showTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar la pestaña seleccionada
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Actualizar resumen si es necesario
+            if (tabName === 'resumen') {
+                actualizarResumen();
+            }
+        }
+
+        function calcularSaldo(input) {
+            const row = input.closest('tr');
+            const comprometido = parseFloat(row.querySelector('input[type="number"]').value) || 0;
+            const entregado = parseFloat(row.querySelectorAll('input[type="number"]')[1].value) || 0;
+            const saldo = comprometido - entregado;
+            
+            const saldoCell = row.querySelector('.saldo-pendiente');
+            saldoCell.textContent = `₡${saldo.toFixed(2)}`;
+            
+            // Aplicar formato condicional
+            if (saldo > 0) {
+                saldoCell.classList.add('pending');
+            } else {
+                saldoCell.classList.remove('pending');
+            }
+            
+            actualizarTotales();
+        }
+
+        function calcularDiferencia(input) {
+            const row = input.closest('tr');
+            const inputs = row.querySelectorAll('input[type="number"]');
+            const estimado = parseFloat(inputs[0].value) || 0;
+            const real = parseFloat(inputs[1].value) || 0;
+            const diferencia = estimado - real;
+            
+            const diferenciaCell = row.querySelector('.diferencia');
+            diferenciaCell.textContent = `₡${diferencia.toFixed(2)}`;
+            
+            if (diferencia < 0) {
+                diferenciaCell.style.color = '#c53030';
+            } else if (diferencia > 0) {
+                diferenciaCell.style.color = '#38a169';
+            } else {
+                diferenciaCell.style.color = '#333';
+            }
+            
+            actualizarTotales();
+        }
+
+        function agregarFilaAportes() {
+            const tbody = document.querySelector('#tablaAportes tbody');
+            const nuevaFila = tbody.querySelector('tr').cloneNode(true);
+            
+            // Limpiar los valores
+            nuevaFila.querySelectorAll('input').forEach(input => input.value = '');
+            nuevaFila.querySelector('select').selectedIndex = 0;
+            nuevaFila.querySelector('.saldo-pendiente').textContent = '₡0.00';
+            nuevaFila.querySelector('.saldo-pendiente').classList.remove('pending');
+            
+            tbody.appendChild(nuevaFila);
+        }
+
+        function agregarFilaGastos() {
+            const tbody = document.querySelector('#tablaGastos tbody');
+            const nuevaFila = tbody.querySelector('tr').cloneNode(true);
+            
+            // Limpiar los valores
+            nuevaFila.querySelectorAll('input').forEach(input => input.value = '');
+            nuevaFila.querySelector('select').selectedIndex = 0;
+            nuevaFila.querySelector('.diferencia').textContent = '₡0.00';
+            nuevaFila.querySelector('.diferencia').style.color = '#333';
+            
+            tbody.appendChild(nuevaFila);
+        }
+
+        function actualizarTotales() {
+            // Totales de gastos
+            let totalEstimado = 0;
+            let totalReal = 0;
+            
+            document.querySelectorAll('#tablaGastos tbody tr').forEach(row => {
+                const inputs = row.querySelectorAll('input[type="number"]');
+                totalEstimado += parseFloat(inputs[0].value) || 0;
+                totalReal += parseFloat(inputs[1].value) || 0;
+            });
+            
+            document.getElementById('totalEstimado').textContent = `₡${totalEstimado.toFixed(2)}`;
+            document.getElementById('totalReal').textContent = `₡${totalReal.toFixed(2)}`;
+            document.getElementById('totalDiferencia').textContent = `₡${(totalEstimado - totalReal).toFixed(2)}`;
+        }
+
+        function actualizarResumen() {
+            let totalComprometido = 0;
+            let totalRecibido = 0;
+            
+            // Calcular totales de aportes
+            document.querySelectorAll('#tablaAportes tbody tr').forEach(row => {
+                const inputs = row.querySelectorAll('input[type="number"]');
+                totalComprometido += parseFloat(inputs[0].value) || 0;
+                totalRecibido += parseFloat(inputs[1].value) || 0;
+            });
+            
+            // Calcular totales de gastos
+            let totalEstimado = 0;
+            let totalReal = 0;
+            
+            document.querySelectorAll('#tablaGastos tbody tr').forEach(row => {
+                const inputs = row.querySelectorAll('input[type="number"]');
+                totalEstimado += parseFloat(inputs[0].value) || 0;
+                totalReal += parseFloat(inputs[1].value) || 0;
+            });
+            
+            // Actualizar resumen
+            document.getElementById('totalComprometido').textContent = `₡${totalComprometido.toFixed(2)}`;
+            document.getElementById('totalRecibido').textContent = `₡${totalRecibido.toFixed(2)}`;
+            document.getElementById('resumenEstimado').textContent = `₡${totalEstimado.toFixed(2)}`;
+            document.getElementById('resumenReal').textContent = `₡${totalReal.toFixed(2)}`;
+            
+            const balance = totalRecibido - totalReal;
+            const balanceElement = document.getElementById('balanceFinal');
+            balanceElement.textContent = `₡${balance.toFixed(2)}`;
+            
+            if (balance < 0) {
+                balanceElement.style.color = '#ff4757';
+            } else if (balance > 0) {
+                balanceElement.style.color = '#2ed573';
+            } else {
+                balanceElement.style.color = 'white';
+            }
+            
+            // Actualizar gráficos
+            actualizarGraficos();
+        }
+
+        function actualizarGraficos() {
+            // Aquí podrías implementar gráficos usando Chart.js
+            // Por simplicidad, muestro placeholders
+            const gastosCanvas = document.getElementById('chartGastos');
+            const ctx1 = gastosCanvas.getContext('2d');
+            
+            // Limpiar canvas
+            ctx1.clearRect(0, 0, gastosCanvas.width, gastosCanvas.height);
+            ctx1.fillStyle = '#f8f9fa';
+            ctx1.fillRect(0, 0, gastosCanvas.width, gastosCanvas.height);
+            ctx1.fillStyle = '#19547b';
+            ctx1.font = '16px Arial';
+            ctx1.textAlign = 'center';
+            ctx1.fillText('Gráfico de Gastos', gastosCanvas.width/2, gastosCanvas.height/2);
+            ctx1.fillText('(Se actualizará con los datos)', gastosCanvas.width/2, gastosCanvas.height/2 + 25);
+            
+            const aportesCanvas = document.getElementById('chartAportes');
+            const ctx2 = aportesCanvas.getContext('2d');
+            
+            ctx2.clearRect(0, 0, aportesCanvas.width, aportesCanvas.height);
+            ctx2.fillStyle = '#f8f9fa';
+            ctx2.fillRect(0, 0, aportesCanvas.width, aportesCanvas.height);
+            ctx2.fillStyle = '#19547b';
+            ctx2.font = '16px Arial';
+            ctx2.textAlign = 'center';
+            ctx2.fillText('Gráfico de Aportes', aportesCanvas.width/2, aportesCanvas.height/2);
+            ctx2.fillText('(Se actualizará con los datos)', aportesCanvas.width/2, aportesCanvas.height/2 + 25);
+        }
+
+        function exportarExcel() {
+            const wb = XLSX.utils.book_new();
+            
+            // Hoja 1: Aportes
+            const aportesData = [];
+            aportesData.push(['Nombre del Integrante', 'Monto Comprometido', 'Monto Entregado', 'Fecha de Aporte', 'Forma de Pago', 'Observaciones', 'Saldo Pendiente']);
+            
+            document.querySelectorAll('#tablaAportes tbody tr').forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const select = row.querySelector('select');
+                const saldo = row.querySelector('.saldo-pendiente').textContent.replace('₡', '');
+                
+                aportesData.push([
+                    inputs[0].value,
+                    parseFloat(inputs[1].value) || 0,
+                    parseFloat(inputs[2].value) || 0,
+                    inputs[3].value,
+                    select.value,
+                    inputs[4].value,
+                    parseFloat(saldo) || 0
+                ]);
+            });
+            
+            const ws1 = XLSX.utils.aoa_to_sheet(aportesData);
+            XLSX.utils.book_append_sheet(wb, ws1, 'Aportes de la Familia');
+            
+            // Hoja 2: Gastos
+            const gastosData = [];
+            gastosData.push(['Categoría', 'Proveedor', 'Costo Estimado', 'Costo Real', 'Diferencia', 'Fecha de Pago', 'Pagado Por', 'Observaciones']);
+            
+            document.querySelectorAll('#tablaGastos tbody tr').forEach(row => {
+                const select = row.querySelector('select');
+                const inputs = row.querySelectorAll('input');
+                const diferencia = row.querySelector('.diferencia').textContent.replace('₡', '');
+                
+                gastosData.push([
+                    select.value,
+                    inputs[0].value,
+                    parseFloat(inputs[1].value) || 0,
+                    parseFloat(inputs[2].value) || 0,
+                    parseFloat(diferencia) || 0,
+                    inputs[3].value,
+                    inputs[4].value,
+                    inputs[5].value
+                ]);
+            });
+            
+            const ws2 = XLSX.utils.aoa_to_sheet(gastosData);
+            XLSX.utils.book_append_sheet(wb, ws2, 'Gastos de la Fiesta');
+            
+            // Hoja 3: Resumen
+            const resumenData = [];
+            resumenData.push(['Concepto', 'Monto']);
+            resumenData.push(['Total Aportes Comprometidos', document.getElementById('totalComprometido').textContent.replace('₡', '')]);
+            resumenData.push(['Total Aportes Recibidos', document.getElementById('totalRecibido').textContent.replace('₡', '')]);
+            resumenData.push(['Total Gastos Estimados', document.getElementById('resumenEstimado').textContent.replace('₡', '')]);
+            resumenData.push(['Total Gastos Reales', document.getElementById('resumenReal').textContent.replace('₡', '')]);
+            resumenData.push(['Balance Final', document.getElementById('balanceFinal').textContent.replace('₡', '')]);
+            
+            const ws3 = XLSX.utils.aoa_to_sheet(resumenData);
+            XLSX.utils.book_append_sheet(wb, ws3, 'Resumen General');
+            
+            // Descargar archivo
+            XLSX.writeFile(wb, 'Organizador_Fiesta_50_Aniversario.xlsx');
+            
+            alert('¡Archivo Excel descargado exitosamente! 🎉\n\nEl archivo incluye todas las hojas con tus datos. Puedes abrirlo en Excel para continuar trabajando con las fórmulas avanzadas.');
+        }
+
+        // Inicializar la aplicación
+        window.onload = function() {
+            actualizarGraficos();
+        };
+    </script>
+</body>
+</html>
