@@ -1200,29 +1200,162 @@ con tus datos siempre sincronizados.`);
             const totalGastosReales = gastos.reduce((sum, g) => sum + (g.costo_real || 0), 0);
             const balance = totalRecibido - totalGastosReales;
             
+            // Estadísticas de invitados
+            const totalInvitados = invitados.length;
+            const totalAcompanantes = invitados.reduce((sum, i) => sum + (i.acompanantes || 0), 0);
+            const totalPersonas = totalInvitados + totalAcompanantes;
+            
+            // Por estado
+            const confirmados = invitados.filter(i => i.estado === 'confirmado').length;
+            const pendientes = invitados.filter(i => i.estado === 'pendiente').length;
+            const noAsisten = invitados.filter(i => i.estado === 'no_asiste').length;
+            
+            // Por relación
+            const familia = invitados.filter(i => i.relacion === 'familia').length;
+            const amigos = invitados.filter(i => i.relacion === 'amigos').length;
+            const trabajo = invitados.filter(i => i.relacion === 'trabajo').length;
+            const vecinos = invitados.filter(i => i.relacion === 'vecinos').length;
+            const otros = invitados.filter(i => i.relacion === 'otros').length;
+            const sinRelacion = invitados.filter(i => !i.relacion || i.relacion === '').length;
+            
+            // Estadísticas de tareas
+            const totalTareas = tareas.length;
+            const tareasCompletadas = tareas.filter(t => t.estado === 'completada').length;
+            const tareasEnProgreso = tareas.filter(t => t.estado === 'en_progreso').length;
+            const tareasPendientes = tareas.filter(t => t.estado === 'pendiente').length;
+            
             document.getElementById('resumenContent').innerHTML = `
+                <!-- Resumen Financiero -->
                 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin: 20px 0;">
-                    <h2 style="text-align: center; margin-bottom: 30px;">📊 Resumen Financiero</h2>
+                    <h2 style="text-align: center; margin-bottom: 30px;">� Resumen Financiero</h2>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                         <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
                             <h3>Aportes Comprometidos</h3>
-                            <p style="font-size: 2em; font-weight: bold;">₡${totalComprometido.toFixed(2)}</p>
+                            <p style="font-size: 2em; font-weight: bold;">₡${totalComprometido.toLocaleString()}</p>
                         </div>
                         <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
                             <h3>Aportes Recibidos</h3>
-                            <p style="font-size: 2em; font-weight: bold;">₡${totalRecibido.toFixed(2)}</p>
+                            <p style="font-size: 2em; font-weight: bold;">₡${totalRecibido.toLocaleString()}</p>
                         </div>
                         <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
                             <h3>Gastos Estimados</h3>
-                            <p style="font-size: 2em; font-weight: bold;">₡${totalGastosEstimados.toFixed(2)}</p>
+                            <p style="font-size: 2em; font-weight: bold;">₡${totalGastosEstimados.toLocaleString()}</p>
                         </div>
                         <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
                             <h3>Gastos Reales</h3>
-                            <p style="font-size: 2em; font-weight: bold;">₡${totalGastosReales.toFixed(2)}</p>
+                            <p style="font-size: 2em; font-weight: bold;">₡${totalGastosReales.toLocaleString()}</p>
                         </div>
                         <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center; grid-column: 1 / -1;">
                             <h3>Balance Final</h3>
-                            <p style="font-size: 2.5em; font-weight: bold; color: ${balance >= 0 ? '#4CAF50' : '#f44336'}">₡${balance.toFixed(2)}</p>
+                            <p style="font-size: 2.5em; font-weight: bold; color: ${balance >= 0 ? '#4CAF50' : '#f44336'}">₡${balance.toLocaleString()}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas de Invitados -->
+                <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 30px; border-radius: 10px; margin: 20px 0;">
+                    <h2 style="text-align: center; margin-bottom: 30px;">👥 Estadísticas de Invitados</h2>
+                    
+                    <!-- Totales Generales -->
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                        <h3 style="margin-bottom: 15px;">📊 Totales Generales</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div>
+                                <h4 style="margin: 5px 0; font-size: 14px;">Invitados Principales</h4>
+                                <p style="font-size: 2em; font-weight: bold; margin: 0;">${totalInvitados}</p>
+                            </div>
+                            <div>
+                                <h4 style="margin: 5px 0; font-size: 14px;">Acompañantes</h4>
+                                <p style="font-size: 2em; font-weight: bold; margin: 0;">${totalAcompanantes}</p>
+                            </div>
+                            <div>
+                                <h4 style="margin: 5px 0; font-size: 14px;">Total de Personas</h4>
+                                <p style="font-size: 2.5em; font-weight: bold; margin: 0; color: #FFD700;">${totalInvitados + totalAcompanantes}</p>
+                            </div>
+                            <div>
+                                <h4 style="margin: 5px 0; font-size: 14px;">Confirmados</h4>
+                                <p style="font-size: 2em; font-weight: bold; margin: 0; color: #90EE90;">${confirmados}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Por Estado -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px;">
+                            <h3 style="text-align: center; margin-bottom: 15px;">📋 Por Estado de Confirmación</h3>
+                            <div style="display: grid; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                                    <span>✅ Confirmados</span>
+                                    <strong style="font-size: 1.3em;">${confirmados} (${totalInvitados > 0 ? Math.round((confirmados/totalInvitados)*100) : 0}%)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                                    <span>⏳ Pendientes</span>
+                                    <strong style="font-size: 1.3em;">${pendientes} (${totalInvitados > 0 ? Math.round((pendientes/totalInvitados)*100) : 0}%)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                                    <span>❌ No Asisten</span>
+                                    <strong style="font-size: 1.3em;">${noAsisten} (${totalInvitados > 0 ? Math.round((noAsisten/totalInvitados)*100) : 0}%)</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Por Relación -->
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px;">
+                            <h3 style="text-align: center; margin-bottom: 15px;">🏷️ Por Tipo de Relación</h3>
+                            <div style="display: grid; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                                    <span>👨‍👩‍👧‍👦 Familia</span>
+                                    <strong style="font-size: 1.3em;">${familia} (${totalInvitados > 0 ? Math.round((familia/totalInvitados)*100) : 0}%)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                                    <span>👥 Amigos</span>
+                                    <strong style="font-size: 1.3em;">${amigos} (${totalInvitados > 0 ? Math.round((amigos/totalInvitados)*100) : 0}%)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                                    <span>💼 Trabajo</span>
+                                    <strong style="font-size: 1.3em;">${trabajo} (${totalInvitados > 0 ? Math.round((trabajo/totalInvitados)*100) : 0}%)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                                    <span>🏘️ Vecinos</span>
+                                    <strong style="font-size: 1.3em;">${vecinos} (${totalInvitados > 0 ? Math.round((vecinos/totalInvitados)*100) : 0}%)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                                    <span>👤 Otros</span>
+                                    <strong style="font-size: 1.3em;">${otros} (${totalInvitados > 0 ? Math.round((otros/totalInvitados)*100) : 0}%)</strong>
+                                </div>
+                                ${sinRelacion > 0 ? `
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;">
+                                    <span>❓ Sin Clasificar</span>
+                                    <strong style="font-size: 1.3em;">${sinRelacion} (${Math.round((sinRelacion/totalInvitados)*100)}%)</strong>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas de Tareas -->
+                <div style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); color: white; padding: 30px; border-radius: 10px; margin: 20px 0;">
+                    <h2 style="text-align: center; margin-bottom: 30px;">📝 Control de Tareas</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
+                            <h3>Total de Tareas</h3>
+                            <p style="font-size: 2em; font-weight: bold;">${totalTareas}</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
+                            <h3>✅ Completadas</h3>
+                            <p style="font-size: 2em; font-weight: bold; color: #4CAF50;">${tareasCompletadas}</p>
+                            <p style="font-size: 14px; margin: 5px 0;">${totalTareas > 0 ? Math.round((tareasCompletadas/totalTareas)*100) : 0}% del total</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
+                            <h3>🚧 En Progreso</h3>
+                            <p style="font-size: 2em; font-weight: bold; color: #FFC107;">${tareasEnProgreso}</p>
+                            <p style="font-size: 14px; margin: 5px 0;">${totalTareas > 0 ? Math.round((tareasEnProgreso/totalTareas)*100) : 0}% del total</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
+                            <h3>⏳ Pendientes</h3>
+                            <p style="font-size: 2em; font-weight: bold; color: #f44336;">${tareasPendientes}</p>
+                            <p style="font-size: 14px; margin: 5px 0;">${totalTareas > 0 ? Math.round((tareasPendientes/totalTareas)*100) : 0}% del total</p>
                         </div>
                     </div>
                 </div>

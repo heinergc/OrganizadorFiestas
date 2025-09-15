@@ -28,7 +28,14 @@ El **Reporte Completo** es una funcionalidad que genera un documento imprimible 
 - Estadísticas de invitados y tareas
 - Saldo pendiente por recibir
 
-### **💰 Aportes de la Familia**
+### **� Estadísticas Detalladas de Invitados**
+- **Resumen General**: Total de invitados, acompañantes y personas confirmadas
+- **Por Estado**: Desglose de confirmados, pendientes y no asistentes con porcentajes
+- **Por Relación**: Distribución por familia, amigos, trabajo, vecinos y otros
+- **Desglose Completo**: Tabla detallada con invitados + acompañantes por cada categoría
+- **Totales y Porcentajes**: Estadísticas completas para planificación de logística
+
+### **�💰 Aportes de la Familia**
 - Lista completa de familiares
 - Montos comprometidos y entregados
 - Fechas y formas de pago
@@ -50,11 +57,15 @@ El **Reporte Completo** es una funcionalidad que genera un documento imprimible 
 - Progreso general del proyecto
 
 ### **👥 Lista de Invitados**
-- Invitados organizados por relación
-- Estados de confirmación
-- Información de contacto
-- Acompañantes por persona
-- Necesidades especiales y observaciones
+### **👥 Lista Completa de Invitados**
+- **Resumen Rápido**: Totales de invitados, acompañantes, confirmados y personas por categoría
+- Lista detallada de todos los invitados:
+  - Nombre completo y tipo de relación
+  - Información de contacto (teléfono, email)
+  - Estado de confirmación
+  - Número de acompañantes
+  - Necesidades especiales y observaciones
+- Organizado para facilitar la logística del evento
 
 ## 🖨️ Opciones de Impresión
 

@@ -83,6 +83,16 @@ Ver [SINCRONIZACION.md](SINCRONIZACION.md) para guía completa.
 5. Gestiona la lista de invitados en "Invitados"
 6. Revisa el progreso en "Resumen General"
 
+### Generar Reportes Imprimibles
+1. Ve a la pestaña "📊 Resumen General"
+2. Haz clic en "📋 Generar Reporte Completo"
+3. Usa "🖨️ Imprimir PDF" para descargar el reporte
+4. El reporte incluye:
+   - **Resumen Ejecutivo**: Balance financiero completo
+   - **Estadísticas Detalladas de Invitados**: Análisis por estado y relación con totales de invitados + acompañantes
+   - **Tablas Completas**: Aportes, gastos, tareas e invitados organizados para impresión
+   - **Totales y Porcentajes**: Datos listos para la logística del evento
+
 ### Importar Datos desde Excel
 1. Haz clic en "📈 Importar Excel"
 2. Selecciona un archivo Excel (.xlsx o .xls)
