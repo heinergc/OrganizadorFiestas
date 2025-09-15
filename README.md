@@ -61,6 +61,19 @@ Una aplicación web completa para organizar fiestas de aniversario, desarrollada
 1. Sube los archivos a un repositorio de GitHub
 2. Activa GitHub Pages en la configuración del repositorio
 3. Accede desde cualquier dispositivo con internet
+4. **📱 Importante**: Los datos se almacenan localmente en cada dispositivo
+5. **🔄 Para sincronizar**: Exporta datos de un dispositivo e impórtalos en otro
+
+### 📱 Sincronización entre dispositivos
+**¿No ves tus datos en el móvil?** Es normal, los datos se guardan localmente por seguridad.
+
+**Solución rápida:**
+1. **En PC**: "💾 Exportar Base de Datos" 
+2. **Envía el archivo** a tu móvil (WhatsApp, email)
+3. **En móvil**: "📂 Importar Base de Datos"
+4. **¡Listo!** Datos sincronizados
+
+Ver [SINCRONIZACION.md](SINCRONIZACION.md) para guía completa.
 
 ### Primer Uso
 1. La aplicación creará automáticamente la base de datos SQLite

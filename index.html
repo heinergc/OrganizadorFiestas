@@ -487,6 +487,9 @@
             <div class="db-status" id="dbStatus">
                 <span class="loading"></span> Inicializando BD...
             </div>
+            <button onclick="mostrarAyudaSincronizacion()" style="position: absolute; top: 15px; left: 20px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; backdrop-filter: blur(10px);">
+                ❓ Ayuda
+            </button>
             <h1>🎉 Organizador de Fiesta</h1>
             <p>50 Aniversario de Bodas - Versión GitHub Pages</p>
         </div>
@@ -501,10 +504,11 @@
         
         <div class="tab-content">
             <!-- HOJA 1: APORTES DE LA FAMILIA -->
-            <div id="aportes" class="tab-pane active">
-                <div class="instructions">
-                    <strong>💡 Instrucciones:</strong> Registra los aportes de cada familiar. Los datos se guardan automáticamente en tu navegador (localStorage + SQLite). Haz respaldos regulares usando "Exportar Base de Datos". Los saldos pendientes aparecen resaltados en rojo.
-                </div>
+            <div id="aportes" class="tab-pane active">            <div class="instructions">
+                <strong>💡 Instrucciones:</strong> Registra los aportes de cada familiar. Los datos se guardan automáticamente en tu navegador (localStorage + SQLite). 
+                <br><strong>📱 Acceso desde móvil:</strong> Los datos no se sincronizan automáticamente entre dispositivos. Para ver datos en tu móvil, exporta la base de datos desde la PC e impórtala en el móvil.
+                <br><strong>💾 Respaldos:</strong> Haz respaldos regulares usando "Exportar Base de Datos". Los saldos pendientes aparecen resaltados en rojo.
+            </div>
                 
                 <table id="tablaAportes">
                     <thead>
@@ -704,7 +708,17 @@
         
         <div class="export-section">
             <h3>💾 Gestión de Datos</h3>
+            <p><strong>📱 Para sincronizar entre dispositivos:</strong> Exporta los datos desde un dispositivo e impórtalos en otro. Los datos se almacenan localmente en cada navegador por seguridad.</p>
             <p>Exporta tu base de datos o descarga un archivo Excel con toda la información. También puedes importar datos desde Excel y gestionar registros vacíos.</p>
+            
+            <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0;">
+                <strong>🔄 Sincronización entre dispositivos:</strong><br>
+                1. <strong>En PC:</strong> Haz clic en "💾 Exportar Base de Datos"<br>
+                2. <strong>Envía el archivo</strong> a tu móvil (WhatsApp, email, etc.)<br>
+                3. <strong>En móvil:</strong> Haz clic en "📂 Importar Base de Datos" y selecciona el archivo<br>
+                4. <strong>¡Listo!</strong> Tendrás todos los datos sincronizados
+            </div>
+            
             <button class="btn" onclick="exportarExcel()">📊 Descargar Excel</button>
             <button class="btn" onclick="importarExcel()" style="background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);">📈 Importar Excel</button>
             <button class="btn" onclick="exportarBaseDatos()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">💾 Exportar Base de Datos</button>
@@ -886,6 +900,9 @@
         }
 
         function showTab(tabName) {
+            // Limpiar mensajes de sin datos
+            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
+            
             document.querySelectorAll('.tab-pane').forEach(pane => {
                 pane.classList.remove('active');
             });
@@ -906,6 +923,11 @@
                     filtrarTareas('todas');
                 }, 100);
             }
+            
+            // Verificar si mostrar mensaje de sin datos después de cambiar tab
+            setTimeout(() => {
+                verificarDatosVacios();
+            }, 200);
         }
 
         function cargarDatos() {
@@ -914,6 +936,65 @@
             cargarTareas();
             cargarInvitados();
             actualizarTotales();
+            verificarDatosVacios();
+        }
+
+        // Función para verificar si hay datos y mostrar instrucciones
+        function verificarDatosVacios() {
+            try {
+                const aportesStmt = db.prepare("SELECT COUNT(*) as count FROM aportes WHERE nombre != '' AND nombre IS NOT NULL");
+                aportesStmt.step();
+                const aportesCount = aportesStmt.getAsObject().count;
+                aportesStmt.free();
+
+                const gastosStmt = db.prepare("SELECT COUNT(*) as count FROM gastos WHERE categoria != '' AND categoria IS NOT NULL");
+                gastosStmt.step();
+                const gastosCount = gastosStmt.getAsObject().count;
+                gastosStmt.free();
+
+                const tareasStmt = db.prepare("SELECT COUNT(*) as count FROM tareas WHERE tarea != '' AND tarea IS NOT NULL");
+                tareasStmt.step();
+                const tareasCount = tareasStmt.getAsObject().count;
+                tareasStmt.free();
+
+                const invitadosStmt = db.prepare("SELECT COUNT(*) as count FROM invitados WHERE nombre_completo != '' AND nombre_completo IS NOT NULL");
+                invitadosStmt.step();
+                const invitadosCount = invitadosStmt.getAsObject().count;
+                invitadosStmt.free();
+
+                // Si no hay datos, mostrar mensaje de ayuda
+                if (aportesCount === 0 && gastosCount === 0 && tareasCount === 0 && invitadosCount === 0) {
+                    mostrarMensajeSinDatos();
+                }
+            } catch (error) {
+                console.error('Error verificando datos:', error);
+            }
+        }
+
+        function mostrarMensajeSinDatos() {
+            const mensaje = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center;">
+                    <h3 style="margin: 0 0 15px 0;">📱 ¡Bienvenido desde tu móvil!</h3>
+                    <p style="margin: 0 0 15px 0;">No se encontraron datos en este dispositivo. Los datos se almacenan localmente en cada navegador por seguridad.</p>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>🔄 Para sincronizar tus datos:</strong><br><br>
+                        <strong>1.</strong> En tu PC: Haz clic en "💾 Exportar Base de Datos"<br>
+                        <strong>2.</strong> Envía el archivo .db a tu móvil (WhatsApp, email, etc.)<br>
+                        <strong>3.</strong> En móvil: Haz clic en "📂 Importar Base de Datos"<br>
+                        <strong>4.</strong> Selecciona el archivo y ¡listo!
+                    </div>
+                    <p style="margin: 0; font-size: 14px; opacity: 0.9;">O empieza desde cero agregando nuevos datos en cualquier pestaña.</p>
+                </div>
+            `;
+            
+            // Agregar el mensaje al tab activo
+            const activeTab = document.querySelector('.tab-pane.active');
+            if (activeTab && !activeTab.querySelector('.mensaje-sin-datos')) {
+                const div = document.createElement('div');
+                div.className = 'mensaje-sin-datos';
+                div.innerHTML = mensaje;
+                activeTab.insertBefore(div, activeTab.firstChild);
+            }
         }
 
         // FUNCIONES PARA TAREAS
@@ -984,6 +1065,9 @@
         }
 
         function agregarNuevaTarea() {
+            // Limpiar mensaje de sin datos
+            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
+            
             const stmt = db.prepare("INSERT INTO tareas (tarea) VALUES (?)");
             stmt.run(['Nueva tarea']);
             stmt.free();
@@ -1105,6 +1189,9 @@
         }
 
         function agregarNuevoInvitado() {
+            // Limpiar mensaje de sin datos
+            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
+            
             const stmt = db.prepare("INSERT INTO invitados (nombre_completo) VALUES (?)");
             stmt.run(['Nuevo invitado']);
             stmt.free();
@@ -1228,6 +1315,9 @@
         }
 
         function agregarNuevoAporte() {
+            // Limpiar mensaje de sin datos
+            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
+            
             const stmt = db.prepare("INSERT INTO aportes (nombre) VALUES (?)");
             stmt.run(['Nuevo familiar']);
             stmt.free();
@@ -1237,6 +1327,9 @@
         }
 
         function agregarNuevoGasto() {
+            // Limpiar mensaje de sin datos
+            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
+            
             const stmt = db.prepare("INSERT INTO gastos (categoria) VALUES (?)");
             stmt.run(['']);
             stmt.free();
@@ -1558,13 +1651,17 @@
                     // Crear nueva base de datos con los datos importados
                     db = new SQL.Database(data);
                     saveDatabase();
+                    
+                    // Limpiar mensajes de sin datos
+                    document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
+                    
                     cargarDatos();
                     
-                    alert('¡Base de datos importada exitosamente! 📂');
+                    alert('🎉 ¡Base de datos importada exitosamente!\n\nTodos tus datos están ahora disponibles en este dispositivo.');
                     updateDBStatus('🟢 BD Importada', 'db-connected');
                 } catch (error) {
                     console.error('Error importando base de datos:', error);
-                    alert('Error al importar la base de datos. Verifica que el archivo sea válido.');
+                    alert('❌ Error al importar la base de datos.\nVerifica que el archivo sea válido y esté en formato .db');
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -1759,6 +1856,32 @@
                     alert('❌ Error al limpiar registros vacíos');
                 }
             }
+        }
+
+        // Función para mostrar ayuda de sincronización
+        function mostrarAyudaSincronizacion() {
+            const mensaje = `
+📱 ¿No ves tus datos en este dispositivo?
+
+Los datos se almacenan localmente en cada navegador por seguridad.
+
+🔄 PARA SINCRONIZAR:
+
+1️⃣ EN PC: Haz clic en "💾 Exportar Base de Datos"
+2️⃣ ENVÍA el archivo .db a este dispositivo (WhatsApp, email)
+3️⃣ AQUÍ: Haz clic en "📂 Importar Base de Datos"
+4️⃣ SELECCIONA el archivo enviado
+5️⃣ ¡LISTO! Todos tus datos aparecerán
+
+💡 TAMBIÉN PUEDES:
+• Usar "📊 Descargar Excel" y "📈 Importar Excel"
+• Empezar desde cero en este dispositivo
+
+🔒 TUS DATOS ESTÁN SEGUROS:
+Todo se almacena solo en tu dispositivo, nadie más tiene acceso.
+            `;
+            
+            alert(mensaje);
         }
     </script>
 </body>
