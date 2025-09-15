@@ -3,9 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OrganizadorFiestas - 50 Aniversario</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <title>OrganizadorFiestas - 50 Aniversario (Cloud)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+        
+        // Configuración de Firebase (reemplaza con tu configuración)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZNbANkDPao0nucej2kW2u3VtltfGoYck",
+            authDomain: "organizadorfiestas-b7190.firebaseapp.com",
+            projectId: "organizadorfiestas-b7190",
+            storageBucket: "organizadorfiestas-b7190.firebasestorage.app",
+            messagingSenderId: "390736807585",
+            appId: "1:390736807585:web:0bcfc21202acc8cc7e92e0",
+            measurementId: "G-ZCNPZPETW9"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Hacer disponible globalmente
+        window.firebaseDB = db;
+        window.firebaseFunctions = {
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            updateDoc,
+            deleteDoc,
+            query,
+            orderBy
+        };
+        
+        // Inicializar la aplicación cuando Firebase esté listo
+        window.addEventListener('load', function() {
+            initApp();
+        });
+    </script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -57,6 +94,10 @@
         
         .db-connected {
             background: rgba(46, 213, 115, 0.3);
+        }
+        
+        .db-error {
+            background: rgba(255, 71, 87, 0.3);
         }
         
         .tabs {
@@ -156,60 +197,6 @@
             font-weight: bold;
         }
         
-        .positive-diff {
-            color: #38a169;
-            font-weight: bold;
-        }
-        
-        .negative-diff {
-            color: #c53030;
-            font-weight: bold;
-        }
-        
-        .summary-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 15px 0;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-        
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .summary-item {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
-        
-        .summary-item h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-        
-        .summary-item .amount {
-            font-size: 2em;
-            font-weight: bold;
-            margin: 0;
-        }
-        
-        .chart-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
         .btn {
             background: linear-gradient(135deg, #19547b 0%, #ffd89b 100%);
             color: white;
@@ -232,6 +219,12 @@
             background: linear-gradient(135deg, #ff4757 0%, #c44569 100%);
         }
         
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            min-width: 60px;
+        }
+        
         .add-row {
             margin: 20px 0;
             text-align: center;
@@ -245,106 +238,13 @@
             border-radius: 0 8px 8px 0;
         }
         
-        .total-row {
-            background: #f8f9fa;
-            font-weight: bold;
-            border-top: 2px solid #19547b;
-        }
-        
-        .export-section {
-            text-align: center;
-            margin: 30px 0;
-            padding: 20px;
-            background: #f8f9fa;
+        .cloud-info {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 15px;
             border-radius: 8px;
-        }
-        
-        .action-buttons {
-            display: inline-flex;
-            gap: 5px;
-            white-space: nowrap;
-        }
-        
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-            min-width: 60px;
-        }
-        
-        .completed-task {
-            background: #e8f5e8;
-            opacity: 0.8;
-        }
-        
-        .high-priority {
-            border-left: 4px solid #ff4757;
-        }
-        
-        .medium-priority {
-            border-left: 4px solid #ffa502;
-        }
-        
-        .low-priority {
-            border-left: 4px solid #2ed573;
-        }
-        
-        .confirmed {
-            background: #e8f5e8;
-            color: #27ae60;
-            font-weight: bold;
-        }
-        
-        .declined {
-            background: #fee;
-            color: #c53030;
-            font-weight: bold;
-        }
-        
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .completed-task {
-            background: #e8f5e8;
-            opacity: 0.8;
-        }
-        
-        .high-priority {
-            border-left: 4px solid #ff4757;
-        }
-        
-        .medium-priority {
-            border-left: 4px solid #ffa502;
-        }
-        
-        .low-priority {
-            border-left: 4px solid #2ed573;
-        }
-        
-        .confirmed {
-            background: #e8f5e8;
-            color: #27ae60;
-            font-weight: bold;
-        }
-        
-        .declined {
-            background: #fee;
-            color: #c53030;
-            font-weight: bold;
-        }
-        
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .filter-active {
-            background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%) !important;
+            margin: 20px 0;
+            text-align: center;
         }
         
         .loading {
@@ -362,7 +262,13 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Mejoras adicionales para responsive */
+        .action-buttons {
+            display: inline-flex;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        
+        /* Responsive design */
         @media (max-width: 768px) {
             .container {
                 margin: 0;
@@ -371,10 +277,6 @@
             
             .header h1 {
                 font-size: 1.8em;
-            }
-            
-            .header p {
-                font-size: 1em;
             }
             
             .tabs {
@@ -397,87 +299,6 @@
                 overflow-x: auto;
                 padding: 15px;
             }
-            
-            th, td {
-                padding: 8px 6px;
-                min-width: 80px;
-            }
-            
-            input, select {
-                font-size: 12px;
-                padding: 6px;
-            }
-            
-            .btn {
-                font-size: 14px;
-                padding: 10px 16px;
-                margin: 5px 2px;
-            }
-            
-            .btn-small {
-                padding: 4px 8px;
-                font-size: 11px;
-            }
-            
-            .summary-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 10px;
-            }
-            
-            .summary-item .amount {
-                font-size: 1.5em;
-            }
-            
-            .filter-buttons {
-                justify-content: center;
-            }
-            
-            .db-status {
-                position: static;
-                margin: 10px auto;
-                display: inline-block;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
-            .header {
-                padding: 20px 15px;
-            }
-            
-            .header h1 {
-                font-size: 1.5em;
-            }
-            
-            .tab {
-                font-size: 12px;
-                padding: 10px 8px;
-                min-width: 100px;
-            }
-            
-            .tab-content {
-                padding: 10px;
-            }
-            
-            table {
-                font-size: 11px;
-            }
-            
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .export-section {
-                padding: 15px;
-            }
-            
-            .instructions {
-                font-size: 14px;
-                padding: 12px;
-            }
         }
     </style>
 </head>
@@ -485,13 +306,19 @@
     <div class="container">
         <div class="header">
             <div class="db-status" id="dbStatus">
-                <span class="loading"></span> Inicializando BD...
+                <span class="loading"></span> Conectando a la nube...
             </div>
-            <button onclick="mostrarAyudaSincronizacion()" style="position: absolute; top: 15px; left: 20px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; backdrop-filter: blur(10px);">
-                ❓ Ayuda
+            <button onclick="mostrarInfoCloud()" style="position: absolute; top: 15px; left: 20px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; backdrop-filter: blur(10px);">
+                ☁️ Info
             </button>
             <h1>🎉 Organizador de Fiesta</h1>
-            <p>50 Aniversario de Bodas - Versión GitHub Pages</p>
+            <p>50 Aniversario de Bodas - Versión Cloud</p>
+        </div>
+        
+        <div class="cloud-info">
+            <strong>☁️ Base de Datos en la Nube</strong><br>
+            Tus datos se sincronizan automáticamente entre todos tus dispositivos y navegadores.
+            Accede desde cualquier lugar y mantén todo actualizado en tiempo real.
         </div>
         
         <div class="tabs">
@@ -504,11 +331,10 @@
         
         <div class="tab-content">
             <!-- HOJA 1: APORTES DE LA FAMILIA -->
-            <div id="aportes" class="tab-pane active">            <div class="instructions">
-                <strong>💡 Instrucciones:</strong> Registra los aportes de cada familiar. Los datos se guardan automáticamente en tu navegador (localStorage + SQLite). 
-                <br><strong>📱 Acceso desde móvil:</strong> Los datos no se sincronizan automáticamente entre dispositivos. Para ver datos en tu móvil, exporta la base de datos desde la PC e impórtala en el móvil.
-                <br><strong>💾 Respaldos:</strong> Haz respaldos regulares usando "Exportar Base de Datos". Los saldos pendientes aparecen resaltados en rojo.
-            </div>
+            <div id="aportes" class="tab-pane active">
+                <div class="instructions">
+                    <strong>💡 Instrucciones:</strong> Registra los aportes de cada familiar. Los datos se guardan automáticamente en la nube y se sincronizan entre todos tus dispositivos en tiempo real.
+                </div>
                 
                 <table id="tablaAportes">
                     <thead>
@@ -524,7 +350,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Los datos se cargarán desde SQLite -->
+                        <!-- Los datos se cargarán desde Firebase -->
                     </tbody>
                 </table>
                 
@@ -536,7 +362,7 @@
             <!-- HOJA 2: GASTOS DE LA FIESTA -->
             <div id="gastos" class="tab-pane">
                 <div class="instructions">
-                    <strong>💡 Instrucciones:</strong> Registra todos los gastos de la fiesta por categorías. Los datos se almacenan automáticamente en SQLite. La diferencia entre costo estimado y real se calcula automáticamente.
+                    <strong>💡 Instrucciones:</strong> Registra todos los gastos de la fiesta por categorías. Los datos se almacenan automáticamente en la nube.
                 </div>
                 
                 <table id="tablaGastos">
@@ -554,21 +380,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Los datos se cargarán desde SQLite -->
+                        <!-- Los datos se cargarán desde Firebase -->
                     </tbody>
-                    <tfoot>
-                        <tr class="total-row">
-                            <td><strong>TOTALES</strong></td>
-                            <td></td>
-                            <td class="currency" id="totalEstimado">₡0.00</td>
-                            <td class="currency" id="totalReal">₡0.00</td>
-                            <td class="currency" id="totalDiferencia">₡0.00</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
                 </table>
                 
                 <div class="add-row">
@@ -579,13 +392,7 @@
             <!-- HOJA 3: TAREAS -->
             <div id="tareas" class="tab-pane">
                 <div class="instructions">
-                    <strong>💡 Instrucciones:</strong> Organiza todas las tareas necesarias para la fiesta. Asigna responsables, categoriza por tipo y marca como completadas cuando estén listas.
-                </div>
-                
-                <div style="display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap;" class="filter-buttons">
-                    <button class="btn filter-active" onclick="filtrarTareas('todas')" id="btnTodas">📋 Todas</button>
-                    <button class="btn" onclick="filtrarTareas('pendientes')" id="btnPendientes">⏳ Pendientes</button>
-                    <button class="btn" onclick="filtrarTareas('finalizadas')" id="btnFinalizadas">✅ Finalizadas</button>
+                    <strong>💡 Instrucciones:</strong> Organiza todas las tareas necesarias para la fiesta. Sincronización automática en tiempo real.
                 </div>
                 
                 <table id="tablaTareas">
@@ -602,7 +409,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Los datos se cargarán desde SQLite -->
+                        <!-- Los datos se cargarán desde Firebase -->
                     </tbody>
                 </table>
                 
@@ -614,28 +421,7 @@
             <!-- HOJA 4: INVITADOS -->
             <div id="invitados" class="tab-pane">
                 <div class="instructions">
-                    <strong>💡 Instrucciones:</strong> Gestiona la lista de invitados, controla confirmaciones y necesidades especiales. Mantén organizado quién viene y sus detalles importantes.
-                </div>
-                
-                <div class="summary-card" style="margin: 20px 0;">
-                    <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr);">
-                        <div class="summary-item">
-                            <h3>Total Invitados</h3>
-                            <p class="amount" id="totalInvitados">0</p>
-                        </div>
-                        <div class="summary-item">
-                            <h3>Confirmados</h3>
-                            <p class="amount" id="totalConfirmados">0</p>
-                        </div>
-                        <div class="summary-item">
-                            <h3>Pendientes</h3>
-                            <p class="amount" id="totalPendientes">0</p>
-                        </div>
-                        <div class="summary-item">
-                            <h3>No Asisten</h3>
-                            <p class="amount" id="totalNoAsisten">0</p>
-                        </div>
-                    </div>
+                    <strong>💡 Instrucciones:</strong> Gestiona la lista de invitados con sincronización automática en todos tus dispositivos.
                 </div>
                 
                 <table id="tablaInvitados">
@@ -653,7 +439,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Los datos se cargarán desde SQLite -->
+                        <!-- Los datos se cargarán desde Firebase -->
                     </tbody>
                 </table>
                 
@@ -664,245 +450,549 @@
             
             <!-- HOJA 5: RESUMEN GENERAL -->
             <div id="resumen" class="tab-pane">
-                <div class="summary-card">
-                    <h2 style="text-align: center; margin-bottom: 30px;">📊 Resumen Financiero</h2>
-                    <div class="summary-grid">
-                        <div class="summary-item">
-                            <h3>Aportes Comprometidos</h3>
-                            <p class="amount" id="totalComprometido">₡0.00</p>
-                        </div>
-                        <div class="summary-item">
-                            <h3>Aportes Recibidos</h3>
-                            <p class="amount" id="totalRecibido">₡0.00</p>
-                        </div>
-                        <div class="summary-item">
-                            <h3>Gastos Estimados</h3>
-                            <p class="amount" id="resumenEstimado">₡0.00</p>
-                        </div>
-                        <div class="summary-item">
-                            <h3>Gastos Reales</h3>
-                            <p class="amount" id="resumenReal">₡0.00</p>
-                        </div>
-                        <div class="summary-item" style="grid-column: 1 / -1;">
-                            <h3>Balance Final</h3>
-                            <p class="amount" id="balanceFinal">₡0.00</p>
-                        </div>
-                    </div>
+                <div class="instructions">
+                    <strong>📊 Resumen financiero actualizado en tiempo real desde la nube.</strong>
                 </div>
                 
-                <div class="chart-container">
-                    <h3>📈 Estadísticas</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-                        <div id="estadisticasAportes">
-                            <h4>📊 Aportes por Estado</h4>
-                            <div id="statsAportes"></div>
-                        </div>
-                        <div id="estadisticasGastos">
-                            <h4>💸 Gastos por Categoría</h4>
-                            <div id="statsGastos"></div>
-                        </div>
-                    </div>
+                <div id="resumenContent">
+                    <!-- Se cargará dinámicamente -->
                 </div>
             </div>
         </div>
         
-        <div class="export-section">
-            <h3>💾 Gestión de Datos</h3>
-            <p><strong>📱 Para sincronizar entre dispositivos:</strong> Exporta los datos desde un dispositivo e impórtalos en otro. Los datos se almacenan localmente en cada navegador por seguridad.</p>
-            <p>Exporta tu base de datos o descarga un archivo Excel con toda la información. También puedes importar datos desde Excel y gestionar registros vacíos.</p>
-            
-            <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0;">
-                <strong>🔄 Sincronización entre dispositivos:</strong><br>
-                1. <strong>En PC:</strong> Haz clic en "💾 Exportar Base de Datos"<br>
-                2. <strong>Envía el archivo</strong> a tu móvil (WhatsApp, email, etc.)<br>
-                3. <strong>En móvil:</strong> Haz clic en "📂 Importar Base de Datos" y selecciona el archivo<br>
-                4. <strong>¡Listo!</strong> Tendrás todos los datos sincronizados
-            </div>
-            
+        <div style="text-align: center; padding: 20px; background: #f8f9fa; margin: 20px 0; border-radius: 8px;">
+            <h3>📊 Exportar Datos</h3>
+            <p>Descarga tus datos en formato Excel</p>
             <button class="btn" onclick="exportarExcel()">📊 Descargar Excel</button>
-            <button class="btn" onclick="importarExcel()" style="background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);">📈 Importar Excel</button>
-            <button class="btn" onclick="exportarBaseDatos()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">💾 Exportar Base de Datos</button>
-            <button class="btn" onclick="importarBaseDatos()" style="background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%);">📂 Importar Base de Datos</button>
-            <button class="btn" onclick="limpiarRegistrosVacios()" style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">🧹 Limpiar Vacíos</button>
-            <button class="btn btn-danger" onclick="limpiarBaseDatos()">🗑️ Limpiar Todo</button>
-            <input type="file" id="fileInput" accept=".db,.sqlite,.sqlite3" style="display: none;" onchange="cargarBaseDatos(event)">
         </div>
     </div>
 
     <script>
-        let db;
-        let SQL;
-
-        // Inicializar SQLite
-        async function initSQLite() {
+        let aportes = [];
+        let gastos = [];
+        let tareas = [];
+        let invitados = [];
+        
+        // Inicializar la aplicación
+        async function initApp() {
             try {
-                SQL = await initSqlJs({
-                    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
-                });
-
-                // Intentar cargar BD existente del localStorage
-                const savedDB = localStorage.getItem('fiesta_database');
-                if (savedDB) {
-                    const data = Uint8Array.from(atob(savedDB), c => c.charCodeAt(0));
-                    db = new SQL.Database(data);
-                } else {
-                    db = new SQL.Database();
-                    createTables();
-                }
-
-                updateDBStatus('🟢 BD Conectada', 'db-connected');
-                
-                // Crear tablas nuevas si no existen (método más robusto)
-                try {
-                    // Verificar y crear tabla tareas
-                    const checkTareas = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='tareas'");
-                    const tareasExists = checkTareas.step();
-                    checkTareas.free();
-                    
-                    if (!tareasExists) {
-                        console.log('Creando tabla tareas...');
-                        const createTareasTable = `
-                            CREATE TABLE tareas (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                tarea TEXT NOT NULL,
-                                categoria TEXT,
-                                responsable TEXT,
-                                fecha_limite TEXT,
-                                prioridad TEXT DEFAULT 'media',
-                                estado TEXT DEFAULT 'pendiente',
-                                observaciones TEXT,
-                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                            );
-                        `;
-                        db.run(createTareasTable);
-                        console.log('Tabla tareas creada exitosamente');
-                    }
-
-                    // Verificar y crear tabla invitados
-                    const checkInvitados = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='invitados'");
-                    const invitadosExists = checkInvitados.step();
-                    checkInvitados.free();
-                    
-                    if (!invitadosExists) {
-                        console.log('Creando tabla invitados...');
-                        const createInvitadosTable = `
-                            CREATE TABLE invitados (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                nombre_completo TEXT NOT NULL,
-                                relacion TEXT,
-                                telefono TEXT,
-                                email TEXT,
-                                estado TEXT DEFAULT 'pendiente',
-                                acompanantes INTEGER DEFAULT 0,
-                                necesidades_especiales TEXT,
-                                observaciones TEXT,
-                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                            );
-                        `;
-                        db.run(createInvitadosTable);
-                        console.log('Tabla invitados creada exitosamente');
-                    }
-
-                } catch (error) {
-                    console.error('Error verificando/creando tablas:', error);
-                }
-
-                saveDatabase();
-                cargarDatos();
+                updateDBStatus('🟢 Conectado a la nube', 'db-connected');
+                await cargarDatos();
             } catch (error) {
-                console.error('Error inicializando SQLite:', error);
-                updateDBStatus('❌ Error BD', '');
+                console.error('Error inicializando:', error);
+                updateDBStatus('❌ Error de conexión', 'db-error');
+                mostrarModoOffline();
             }
         }
-
+        
         function updateDBStatus(text, className) {
             const statusEl = document.getElementById('dbStatus');
             statusEl.innerHTML = text;
             statusEl.className = `db-status ${className}`;
         }
-
-        function createTables() {
-            const createAportesTable = `
-                CREATE TABLE aportes (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nombre TEXT NOT NULL,
-                    monto_comprometido REAL DEFAULT 0,
-                    monto_entregado REAL DEFAULT 0,
-                    fecha_aporte TEXT,
-                    forma_pago TEXT,
-                    observaciones TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-            `;
-
-            const createGastosTable = `
-                CREATE TABLE gastos (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    categoria TEXT NOT NULL,
-                    proveedor TEXT,
-                    costo_estimado REAL DEFAULT 0,
-                    costo_real REAL DEFAULT 0,
-                    fecha_pago TEXT,
-                    pagado_por TEXT,
-                    observaciones TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-            `;
-
-            const createTareasTable = `
-                CREATE TABLE tareas (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    tarea TEXT NOT NULL,
-                    categoria TEXT,
-                    responsable TEXT,
-                    fecha_limite TEXT,
-                    prioridad TEXT DEFAULT 'media',
-                    estado TEXT DEFAULT 'pendiente',
-                    observaciones TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-            `;
-
-            const createInvitadosTable = `
-                CREATE TABLE invitados (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nombre_completo TEXT NOT NULL,
-                    relacion TEXT,
-                    telefono TEXT,
-                    email TEXT,
-                    estado TEXT DEFAULT 'pendiente',
-                    acompanantes INTEGER DEFAULT 0,
-                    necesidades_especiales TEXT,
-                    observaciones TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-            `;
-
-            db.run(createAportesTable);
-            db.run(createGastosTable);
-            db.run(createTareasTable);
-            db.run(createInvitadosTable);
-            saveDatabase();
+        
+        function mostrarModoOffline() {
+            alert('⚠️ No se pudo conectar a la base de datos en la nube.\n\nPor favor:\n1. Verifica tu conexión a internet\n2. Configura Firebase correctamente\n3. Actualiza la página');
         }
+        
+        function mostrarInfoCloud() {
+            alert(`☁️ BASE DE DATOS EN LA NUBE
 
-        function saveDatabase() {
-            if (db) {
-                const data = db.export();
-                const base64 = btoa(String.fromCharCode(...data));
-                localStorage.setItem('fiesta_database', base64);
+✅ VENTAJAS:
+• Acceso desde cualquier dispositivo
+• Sincronización automática en tiempo real
+• Sin pérdida de datos al cambiar navegador
+• Respaldos automáticos en la nube
+• Colaboración familiar en tiempo real
+
+🔧 CONFIGURACIÓN REQUERIDA:
+Para que funcione necesitas configurar Firebase:
+1. Crear proyecto en Firebase
+2. Habilitar Firestore
+3. Configurar las credenciales en el código
+
+📱 UNA VEZ CONFIGURADO:
+Podrás acceder desde cualquier lugar y dispositivo
+con tus datos siempre sincronizados.`);
+        }
+        
+        // Funciones para manejar datos
+        async function cargarDatos() {
+            if (!window.firebaseDB) {
+                console.error('Firebase no está configurado');
+                return;
+            }
+            
+            try {
+                // Cargar aportes
+                const aportesSnapshot = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDB, 'aportes')
+                );
+                aportes = aportesSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Cargar gastos
+                const gastosSnapshot = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDB, 'gastos')
+                );
+                gastos = gastosSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Cargar tareas
+                const tareasSnapshot = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDB, 'tareas')
+                );
+                tareas = tareasSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Cargar invitados
+                const invitadosSnapshot = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDB, 'invitados')
+                );
+                invitados = invitadosSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Actualizar todas las tablas
+                actualizarTablaAportes();
+                actualizarTablaGastos();
+                actualizarTablaTareas();
+                actualizarTablaInvitados();
+                
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                updateDBStatus('❌ Error cargando datos', 'db-error');
             }
         }
-
-        function showTab(tabName) {
-            // Limpiar mensajes de sin datos
-            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
+        
+        // Funciones para actualizar tablas
+        function actualizarTablaAportes() {
+            const tbody = document.querySelector('#tablaAportes tbody');
+            tbody.innerHTML = '';
             
+            aportes.forEach(aporte => {
+                const saldo = (aporte.monto_comprometido || 0) - (aporte.monto_entregado || 0);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${aporte.nombre || ''}" onchange="actualizarAporte('${aporte.id}', 'nombre', this.value)"></td>
+                    <td><input type="number" step="0.01" value="${aporte.monto_comprometido || 0}" onchange="actualizarAporte('${aporte.id}', 'monto_comprometido', this.value)"></td>
+                    <td><input type="number" step="0.01" value="${aporte.monto_entregado || 0}" onchange="actualizarAporte('${aporte.id}', 'monto_entregado', this.value)"></td>
+                    <td><input type="date" value="${aporte.fecha_aporte || ''}" onchange="actualizarAporte('${aporte.id}', 'fecha_aporte', this.value)"></td>
+                    <td>
+                        <select onchange="actualizarAporte('${aporte.id}', 'forma_pago', this.value)">
+                            <option value="">Seleccionar...</option>
+                            <option value="efectivo" ${aporte.forma_pago === 'efectivo' ? 'selected' : ''}>Efectivo</option>
+                            <option value="transferencia" ${aporte.forma_pago === 'transferencia' ? 'selected' : ''}>Transferencia</option>
+                            <option value="tarjeta" ${aporte.forma_pago === 'tarjeta' ? 'selected' : ''}>Tarjeta</option>
+                        </select>
+                    </td>
+                    <td><input type="text" value="${aporte.observaciones || ''}" onchange="actualizarAporte('${aporte.id}', 'observaciones', this.value)"></td>
+                    <td class="currency ${saldo > 0 ? 'pending' : ''}">₡${saldo.toFixed(2)}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-danger btn-small" onclick="eliminarAporte('${aporte.id}')">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function actualizarTablaGastos() {
+            const tbody = document.querySelector('#tablaGastos tbody');
+            tbody.innerHTML = '';
+            
+            gastos.forEach(gasto => {
+                const diferencia = (gasto.costo_estimado || 0) - (gasto.costo_real || 0);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <select onchange="actualizarGasto('${gasto.id}', 'categoria', this.value)">
+                            <option value="">Seleccionar...</option>
+                            <option value="banquete" ${gasto.categoria === 'banquete' ? 'selected' : ''}>🍽️ Banquete</option>
+                            <option value="musica" ${gasto.categoria === 'musica' ? 'selected' : ''}>🎵 Música</option>
+                            <option value="decoracion" ${gasto.categoria === 'decoracion' ? 'selected' : ''}>🎀 Decoración</option>
+                            <option value="fotografia" ${gasto.categoria === 'fotografia' ? 'selected' : ''}>📸 Fotografía</option>
+                            <option value="otros" ${gasto.categoria === 'otros' ? 'selected' : ''}>📦 Otros</option>
+                        </select>
+                    </td>
+                    <td><input type="text" value="${gasto.proveedor || ''}" onchange="actualizarGasto('${gasto.id}', 'proveedor', this.value)"></td>
+                    <td><input type="number" step="0.01" value="${gasto.costo_estimado || 0}" onchange="actualizarGasto('${gasto.id}', 'costo_estimado', this.value)"></td>
+                    <td><input type="number" step="0.01" value="${gasto.costo_real || 0}" onchange="actualizarGasto('${gasto.id}', 'costo_real', this.value)"></td>
+                    <td class="currency">₡${diferencia.toFixed(2)}</td>
+                    <td><input type="date" value="${gasto.fecha_pago || ''}" onchange="actualizarGasto('${gasto.id}', 'fecha_pago', this.value)"></td>
+                    <td><input type="text" value="${gasto.pagado_por || ''}" onchange="actualizarGasto('${gasto.id}', 'pagado_por', this.value)"></td>
+                    <td><input type="text" value="${gasto.observaciones || ''}" onchange="actualizarGasto('${gasto.id}', 'observaciones', this.value)"></td>
+                    <td class="action-buttons">
+                        <button class="btn btn-danger btn-small" onclick="eliminarGasto('${gasto.id}')">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function actualizarTablaTareas() {
+            const tbody = document.querySelector('#tablaTareas tbody');
+            tbody.innerHTML = '';
+            
+            tareas.forEach(tarea => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${tarea.tarea || ''}" onchange="actualizarTarea('${tarea.id}', 'tarea', this.value)"></td>
+                    <td>
+                        <select onchange="actualizarTarea('${tarea.id}', 'categoria', this.value)">
+                            <option value="">Seleccionar...</option>
+                            <option value="planificacion" ${tarea.categoria === 'planificacion' ? 'selected' : ''}>📋 Planificación</option>
+                            <option value="decoracion" ${tarea.categoria === 'decoracion' ? 'selected' : ''}>🎀 Decoración</option>
+                            <option value="comida" ${tarea.categoria === 'comida' ? 'selected' : ''}>🍽️ Comida</option>
+                            <option value="musica" ${tarea.categoria === 'musica' ? 'selected' : ''}>🎵 Música</option>
+                            <option value="invitaciones" ${tarea.categoria === 'invitaciones' ? 'selected' : ''}>💌 Invitaciones</option>
+                            <option value="logistica" ${tarea.categoria === 'logistica' ? 'selected' : ''}>🚛 Logística</option>
+                            <option value="otros" ${tarea.categoria === 'otros' ? 'selected' : ''}>📦 Otros</option>
+                        </select>
+                    </td>
+                    <td><input type="text" value="${tarea.responsable || ''}" onchange="actualizarTarea('${tarea.id}', 'responsable', this.value)"></td>
+                    <td><input type="date" value="${tarea.fecha_limite || ''}" onchange="actualizarTarea('${tarea.id}', 'fecha_limite', this.value)"></td>
+                    <td>
+                        <select onchange="actualizarTarea('${tarea.id}', 'prioridad', this.value)">
+                            <option value="baja" ${tarea.prioridad === 'baja' ? 'selected' : ''}>🟢 Baja</option>
+                            <option value="media" ${tarea.prioridad === 'media' ? 'selected' : ''}>🟡 Media</option>
+                            <option value="alta" ${tarea.prioridad === 'alta' ? 'selected' : ''}>🔴 Alta</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select onchange="actualizarTarea('${tarea.id}', 'estado', this.value)">
+                            <option value="pendiente" ${tarea.estado === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+                            <option value="en_progreso" ${tarea.estado === 'en_progreso' ? 'selected' : ''}>🚧 En Progreso</option>
+                            <option value="completada" ${tarea.estado === 'completada' ? 'selected' : ''}>✅ Completada</option>
+                        </select>
+                    </td>
+                    <td><input type="text" value="${tarea.observaciones || ''}" onchange="actualizarTarea('${tarea.id}', 'observaciones', this.value)"></td>
+                    <td class="action-buttons">
+                        <button class="btn btn-danger btn-small" onclick="eliminarTarea('${tarea.id}')">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function actualizarTablaInvitados() {
+            const tbody = document.querySelector('#tablaInvitados tbody');
+            tbody.innerHTML = '';
+            
+            invitados.forEach(invitado => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${invitado.nombre_completo || ''}" onchange="actualizarInvitado('${invitado.id}', 'nombre_completo', this.value)"></td>
+                    <td>
+                        <select onchange="actualizarInvitado('${invitado.id}', 'relacion', this.value)">
+                            <option value="">Seleccionar...</option>
+                            <option value="familia" ${invitado.relacion === 'familia' ? 'selected' : ''}>👨‍👩‍👧‍👦 Familia</option>
+                            <option value="amigos" ${invitado.relacion === 'amigos' ? 'selected' : ''}>👥 Amigos</option>
+                            <option value="trabajo" ${invitado.relacion === 'trabajo' ? 'selected' : ''}>💼 Trabajo</option>
+                            <option value="vecinos" ${invitado.relacion === 'vecinos' ? 'selected' : ''}>🏘️ Vecinos</option>
+                            <option value="otros" ${invitado.relacion === 'otros' ? 'selected' : ''}>👤 Otros</option>
+                        </select>
+                    </td>
+                    <td><input type="tel" value="${invitado.telefono || ''}" onchange="actualizarInvitado('${invitado.id}', 'telefono', this.value)"></td>
+                    <td><input type="email" value="${invitado.email || ''}" onchange="actualizarInvitado('${invitado.id}', 'email', this.value)"></td>
+                    <td>
+                        <select onchange="actualizarInvitado('${invitado.id}', 'estado', this.value)">
+                            <option value="pendiente" ${invitado.estado === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+                            <option value="confirmado" ${invitado.estado === 'confirmado' ? 'selected' : ''}>✅ Confirmado</option>
+                            <option value="no_asiste" ${invitado.estado === 'no_asiste' ? 'selected' : ''}>❌ No Asiste</option>
+                        </select>
+                    </td>
+                    <td><input type="number" min="0" value="${invitado.acompanantes || 0}" onchange="actualizarInvitado('${invitado.id}', 'acompanantes', this.value)"></td>
+                    <td><input type="text" value="${invitado.necesidades_especiales || ''}" onchange="actualizarInvitado('${invitado.id}', 'necesidades_especiales', this.value)"></td>
+                    <td><input type="text" value="${invitado.observaciones || ''}" onchange="actualizarInvitado('${invitado.id}', 'observaciones', this.value)"></td>
+                    <td class="action-buttons">
+                        <button class="btn btn-danger btn-small" onclick="eliminarInvitado('${invitado.id}')">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Funciones CRUD
+        async function agregarNuevoAporte() {
+            try {
+                const docRef = await window.firebaseFunctions.addDoc(
+                    window.firebaseFunctions.collection(window.firebaseDB, 'aportes'),
+                    {
+                        nombre: 'Nuevo familiar',
+                        monto_comprometido: 0,
+                        monto_entregado: 0,
+                        fecha_aporte: '',
+                        forma_pago: '',
+                        observaciones: '',
+                        created_at: new Date()
+                    }
+                );
+                
+                aportes.push({
+                    id: docRef.id,
+                    nombre: 'Nuevo familiar',
+                    monto_comprometido: 0,
+                    monto_entregado: 0,
+                    fecha_aporte: '',
+                    forma_pago: '',
+                    observaciones: ''
+                });
+                
+                actualizarTablaAportes();
+            } catch (error) {
+                console.error('Error agregando aporte:', error);
+                alert('Error al agregar familiar');
+            }
+        }
+        
+        async function actualizarAporte(id, campo, valor) {
+            try {
+                await window.firebaseFunctions.updateDoc(
+                    window.firebaseFunctions.doc(window.firebaseDB, 'aportes', id),
+                    { [campo]: campo.includes('monto') ? parseFloat(valor) || 0 : valor }
+                );
+                
+                const index = aportes.findIndex(a => a.id === id);
+                if (index !== -1) {
+                    aportes[index][campo] = campo.includes('monto') ? parseFloat(valor) || 0 : valor;
+                    actualizarTablaAportes();
+                }
+            } catch (error) {
+                console.error('Error actualizando aporte:', error);
+            }
+        }
+        
+        async function eliminarAporte(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este aporte?')) return;
+            
+            try {
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDB, 'aportes', id)
+                );
+                
+                aportes = aportes.filter(a => a.id !== id);
+                actualizarTablaAportes();
+            } catch (error) {
+                console.error('Error eliminando aporte:', error);
+                alert('Error al eliminar aporte');
+            }
+        }
+        
+        // Funciones similares para gastos, tareas e invitados...
+        async function agregarNuevoGasto() {
+            try {
+                const docRef = await window.firebaseFunctions.addDoc(
+                    window.firebaseFunctions.collection(window.firebaseDB, 'gastos'),
+                    {
+                        categoria: '',
+                        proveedor: '',
+                        costo_estimado: 0,
+                        costo_real: 0,
+                        fecha_pago: '',
+                        pagado_por: '',
+                        observaciones: '',
+                        created_at: new Date()
+                    }
+                );
+                
+                gastos.push({
+                    id: docRef.id,
+                    categoria: '',
+                    proveedor: '',
+                    costo_estimado: 0,
+                    costo_real: 0,
+                    fecha_pago: '',
+                    pagado_por: '',
+                    observaciones: ''
+                });
+                
+                actualizarTablaGastos();
+            } catch (error) {
+                console.error('Error agregando gasto:', error);
+                alert('Error al agregar gasto');
+            }
+        }
+        
+        async function actualizarGasto(id, campo, valor) {
+            try {
+                await window.firebaseFunctions.updateDoc(
+                    window.firebaseFunctions.doc(window.firebaseDB, 'gastos', id),
+                    { [campo]: campo.includes('costo') ? parseFloat(valor) || 0 : valor }
+                );
+                
+                const index = gastos.findIndex(g => g.id === id);
+                if (index !== -1) {
+                    gastos[index][campo] = campo.includes('costo') ? parseFloat(valor) || 0 : valor;
+                    actualizarTablaGastos();
+                }
+            } catch (error) {
+                console.error('Error actualizando gasto:', error);
+            }
+        }
+        
+        async function eliminarGasto(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este gasto?')) return;
+            
+            try {
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDB, 'gastos', id)
+                );
+                
+                gastos = gastos.filter(g => g.id !== id);
+                actualizarTablaGastos();
+            } catch (error) {
+                console.error('Error eliminando gasto:', error);
+                alert('Error al eliminar gasto');
+            }
+        }
+        
+        // Funciones para tareas
+        async function agregarNuevaTarea() {
+            try {
+                const docRef = await window.firebaseFunctions.addDoc(
+                    window.firebaseFunctions.collection(window.firebaseDB, 'tareas'),
+                    {
+                        tarea: 'Nueva tarea',
+                        categoria: '',
+                        responsable: '',
+                        fecha_limite: '',
+                        prioridad: 'media',
+                        estado: 'pendiente',
+                        observaciones: '',
+                        created_at: new Date()
+                    }
+                );
+                
+                tareas.push({
+                    id: docRef.id,
+                    tarea: 'Nueva tarea',
+                    categoria: '',
+                    responsable: '',
+                    fecha_limite: '',
+                    prioridad: 'media',
+                    estado: 'pendiente',
+                    observaciones: ''
+                });
+                
+                actualizarTablaTareas();
+            } catch (error) {
+                console.error('Error agregando tarea:', error);
+                alert('Error al agregar tarea');
+            }
+        }
+        
+        async function actualizarTarea(id, campo, valor) {
+            try {
+                await window.firebaseFunctions.updateDoc(
+                    window.firebaseFunctions.doc(window.firebaseDB, 'tareas', id),
+                    { [campo]: valor }
+                );
+                
+                const index = tareas.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    tareas[index][campo] = valor;
+                    actualizarTablaTareas();
+                }
+            } catch (error) {
+                console.error('Error actualizando tarea:', error);
+            }
+        }
+        
+        async function eliminarTarea(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta tarea?')) return;
+            
+            try {
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDB, 'tareas', id)
+                );
+                
+                tareas = tareas.filter(t => t.id !== id);
+                actualizarTablaTareas();
+            } catch (error) {
+                console.error('Error eliminando tarea:', error);
+                alert('Error al eliminar tarea');
+            }
+        }
+        
+        // Funciones para invitados
+        async function agregarNuevoInvitado() {
+            try {
+                const docRef = await window.firebaseFunctions.addDoc(
+                    window.firebaseFunctions.collection(window.firebaseDB, 'invitados'),
+                    {
+                        nombre_completo: 'Nuevo invitado',
+                        relacion: '',
+                        telefono: '',
+                        email: '',
+                        estado: 'pendiente',
+                        acompanantes: 0,
+                        necesidades_especiales: '',
+                        observaciones: '',
+                        created_at: new Date()
+                    }
+                );
+                
+                invitados.push({
+                    id: docRef.id,
+                    nombre_completo: 'Nuevo invitado',
+                    relacion: '',
+                    telefono: '',
+                    email: '',
+                    estado: 'pendiente',
+                    acompanantes: 0,
+                    necesidades_especiales: '',
+                    observaciones: ''
+                });
+                
+                actualizarTablaInvitados();
+            } catch (error) {
+                console.error('Error agregando invitado:', error);
+                alert('Error al agregar invitado');
+            }
+        }
+        
+        async function actualizarInvitado(id, campo, valor) {
+            try {
+                await window.firebaseFunctions.updateDoc(
+                    window.firebaseFunctions.doc(window.firebaseDB, 'invitados', id),
+                    { [campo]: campo === 'acompanantes' ? parseInt(valor) || 0 : valor }
+                );
+                
+                const index = invitados.findIndex(i => i.id === id);
+                if (index !== -1) {
+                    invitados[index][campo] = campo === 'acompanantes' ? parseInt(valor) || 0 : valor;
+                    actualizarTablaInvitados();
+                }
+            } catch (error) {
+                console.error('Error actualizando invitado:', error);
+            }
+        }
+        
+        async function eliminarInvitado(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este invitado?')) return;
+            
+            try {
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDB, 'invitados', id)
+                );
+                
+                invitados = invitados.filter(i => i.id !== id);
+                actualizarTablaInvitados();
+            } catch (error) {
+                console.error('Error eliminando invitado:', error);
+                alert('Error al eliminar invitado');
+            }
+        }
+        
+        // Función para cambiar tabs
+        function showTab(tabName) {
             document.querySelectorAll('.tab-pane').forEach(pane => {
                 pane.classList.remove('active');
             });
@@ -915,973 +1005,128 @@
             
             if (tabName === 'resumen') {
                 actualizarResumen();
-            } else if (tabName === 'invitados') {
-                actualizarEstadisticasInvitados();
-            } else if (tabName === 'tareas') {
-                // Asegurar que se muestren todas las tareas por defecto
-                setTimeout(() => {
-                    filtrarTareas('todas');
-                }, 100);
-            }
-            
-            // Verificar si mostrar mensaje de sin datos después de cambiar tab
-            setTimeout(() => {
-                verificarDatosVacios();
-            }, 200);
-        }
-
-        function cargarDatos() {
-            cargarAportes();
-            cargarGastos();
-            cargarTareas();
-            cargarInvitados();
-            actualizarTotales();
-            verificarDatosVacios();
-        }
-
-        // Función para verificar si hay datos y mostrar instrucciones
-        function verificarDatosVacios() {
-            try {
-                const aportesStmt = db.prepare("SELECT COUNT(*) as count FROM aportes WHERE nombre != '' AND nombre IS NOT NULL");
-                aportesStmt.step();
-                const aportesCount = aportesStmt.getAsObject().count;
-                aportesStmt.free();
-
-                const gastosStmt = db.prepare("SELECT COUNT(*) as count FROM gastos WHERE categoria != '' AND categoria IS NOT NULL");
-                gastosStmt.step();
-                const gastosCount = gastosStmt.getAsObject().count;
-                gastosStmt.free();
-
-                const tareasStmt = db.prepare("SELECT COUNT(*) as count FROM tareas WHERE tarea != '' AND tarea IS NOT NULL");
-                tareasStmt.step();
-                const tareasCount = tareasStmt.getAsObject().count;
-                tareasStmt.free();
-
-                const invitadosStmt = db.prepare("SELECT COUNT(*) as count FROM invitados WHERE nombre_completo != '' AND nombre_completo IS NOT NULL");
-                invitadosStmt.step();
-                const invitadosCount = invitadosStmt.getAsObject().count;
-                invitadosStmt.free();
-
-                // Si no hay datos, mostrar mensaje de ayuda
-                if (aportesCount === 0 && gastosCount === 0 && tareasCount === 0 && invitadosCount === 0) {
-                    mostrarMensajeSinDatos();
-                }
-            } catch (error) {
-                console.error('Error verificando datos:', error);
             }
         }
-
-        function mostrarMensajeSinDatos() {
-            const mensaje = `
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center;">
-                    <h3 style="margin: 0 0 15px 0;">📱 ¡Bienvenido desde tu móvil!</h3>
-                    <p style="margin: 0 0 15px 0;">No se encontraron datos en este dispositivo. Los datos se almacenan localmente en cada navegador por seguridad.</p>
-                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
-                        <strong>🔄 Para sincronizar tus datos:</strong><br><br>
-                        <strong>1.</strong> En tu PC: Haz clic en "💾 Exportar Base de Datos"<br>
-                        <strong>2.</strong> Envía el archivo .db a tu móvil (WhatsApp, email, etc.)<br>
-                        <strong>3.</strong> En móvil: Haz clic en "📂 Importar Base de Datos"<br>
-                        <strong>4.</strong> Selecciona el archivo y ¡listo!
-                    </div>
-                    <p style="margin: 0; font-size: 14px; opacity: 0.9;">O empieza desde cero agregando nuevos datos en cualquier pestaña.</p>
-                </div>
-            `;
-            
-            // Agregar el mensaje al tab activo
-            const activeTab = document.querySelector('.tab-pane.active');
-            if (activeTab && !activeTab.querySelector('.mensaje-sin-datos')) {
-                const div = document.createElement('div');
-                div.className = 'mensaje-sin-datos';
-                div.innerHTML = mensaje;
-                activeTab.insertBefore(div, activeTab.firstChild);
-            }
-        }
-
-        // FUNCIONES PARA TAREAS
-        function cargarTareas() {
-            const tbody = document.querySelector('#tablaTareas tbody');
-            tbody.innerHTML = '';
-
-            try {
-                const stmt = db.prepare("SELECT * FROM tareas ORDER BY created_at DESC");
-                while (stmt.step()) {
-                    const row = stmt.getAsObject();
-                    
-                    const tr = document.createElement('tr');
-                    if (row.estado === 'completada') {
-                        tr.classList.add('completed-task');
-                    }
-                    if (row.prioridad === 'alta') {
-                        tr.classList.add('high-priority');
-                    } else if (row.prioridad === 'media') {
-                        tr.classList.add('medium-priority');
-                    } else {
-                        tr.classList.add('low-priority');
-                    }
-                    
-                    tr.innerHTML = `
-                        <td><input type="text" value="${row.tarea || ''}" onchange="actualizarTarea(${row.id}, 'tarea', this.value)"></td>
-                        <td>
-                            <select onchange="actualizarTarea(${row.id}, 'categoria', this.value)">
-                                <option value="">Seleccionar...</option>
-                                <option value="planificacion" ${row.categoria === 'planificacion' ? 'selected' : ''}>📋 Planificación</option>
-                                <option value="decoracion" ${row.categoria === 'decoracion' ? 'selected' : ''}>🎀 Decoración</option>
-                                <option value="comida" ${row.categoria === 'comida' ? 'selected' : ''}>🍽️ Comida</option>
-                                <option value="musica" ${row.categoria === 'musica' ? 'selected' : ''}>🎵 Música</option>
-                                <option value="invitaciones" ${row.categoria === 'invitaciones' ? 'selected' : ''}>💌 Invitaciones</option>
-                                <option value="logistica" ${row.categoria === 'logistica' ? 'selected' : ''}>🚛 Logística</option>
-                                <option value="otros" ${row.categoria === 'otros' ? 'selected' : ''}>📦 Otros</option>
-                            </select>
-                        </td>
-                        <td><input type="text" value="${row.responsable || ''}" onchange="actualizarTarea(${row.id}, 'responsable', this.value)"></td>
-                        <td><input type="date" value="${row.fecha_limite || ''}" onchange="actualizarTarea(${row.id}, 'fecha_limite', this.value)"></td>
-                        <td>
-                            <select onchange="actualizarTarea(${row.id}, 'prioridad', this.value)">
-                                <option value="baja" ${row.prioridad === 'baja' ? 'selected' : ''}>🟢 Baja</option>
-                                <option value="media" ${row.prioridad === 'media' ? 'selected' : ''}>🟡 Media</option>
-                                <option value="alta" ${row.prioridad === 'alta' ? 'selected' : ''}>🔴 Alta</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select onchange="actualizarTarea(${row.id}, 'estado', this.value)">
-                                <option value="pendiente" ${row.estado === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
-                                <option value="en_progreso" ${row.estado === 'en_progreso' ? 'selected' : ''}>🚧 En Progreso</option>
-                                <option value="completada" ${row.estado === 'completada' ? 'selected' : ''}>✅ Completada</option>
-                            </select>
-                        </td>
-                        <td><input type="text" value="${row.observaciones || ''}" onchange="actualizarTarea(${row.id}, 'observaciones', this.value)"></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-danger btn-small" onclick="eliminarTarea(${row.id})">🗑️</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-                stmt.free();
-            } catch (error) {
-                console.error('Error cargando tareas:', error);
-                // Si hay error, mostrar mensaje en la tabla
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No hay tareas registradas o hay un problema con la base de datos. Intenta agregar una nueva tarea.</td></tr>';
-            }
-        }
-
-        function agregarNuevaTarea() {
-            // Limpiar mensaje de sin datos
-            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
-            
-            const stmt = db.prepare("INSERT INTO tareas (tarea) VALUES (?)");
-            stmt.run(['Nueva tarea']);
-            stmt.free();
-            saveDatabase();
-            cargarTareas();
-        }
-
-        function actualizarTarea(id, campo, valor) {
-            const stmt = db.prepare(`UPDATE tareas SET ${campo} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
-            stmt.run([valor, id]);
-            stmt.free();
-            saveDatabase();
-            
-            if (campo === 'estado' || campo === 'prioridad') {
-                cargarTareas();
-            }
-        }
-
-        function eliminarTarea(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
-                const stmt = db.prepare("DELETE FROM tareas WHERE id = ?");
-                stmt.run([id]);
-                stmt.free();
-                saveDatabase();
-                cargarTareas();
-            }
-        }
-
-        function filtrarTareas(filtro) {
-            // Remover clase activa de todos los botones
-            document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
-                btn.classList.remove('filter-active');
-            });
-            
-            // Agregar clase activa al botón clickeado
-            let btnElement;
-            if (filtro === 'todas') {
-                btnElement = document.getElementById('btnTodas');
-            } else if (filtro === 'pendientes') {
-                btnElement = document.getElementById('btnPendientes');
-            } else if (filtro === 'finalizadas') {
-                btnElement = document.getElementById('btnFinalizadas');
-            }
-            
-            if (btnElement) {
-                btnElement.classList.add('filter-active');
-            }
-            
-            const tbody = document.querySelector('#tablaTareas tbody');
-            const rows = tbody.querySelectorAll('tr');
-            
-            rows.forEach(row => {
-                const estadoSelect = row.querySelector('select[onchange*="estado"]');
-                const estado = estadoSelect ? estadoSelect.value : '';
-                
-                if (filtro === 'todas') {
-                    row.style.display = '';
-                } else if (filtro === 'pendientes') {
-                    row.style.display = (estado === 'pendiente' || estado === 'en_progreso') ? '' : 'none';
-                } else if (filtro === 'finalizadas') {
-                    row.style.display = estado === 'completada' ? '' : 'none';
-                }
-            });
-        }
-
-        // FUNCIONES PARA INVITADOS
-        function cargarInvitados() {
-            const tbody = document.querySelector('#tablaInvitados tbody');
-            tbody.innerHTML = '';
-
-            try {
-                const stmt = db.prepare("SELECT * FROM invitados ORDER BY created_at DESC");
-                while (stmt.step()) {
-                    const row = stmt.getAsObject();
-                    
-                    const tr = document.createElement('tr');
-                    if (row.estado === 'confirmado') {
-                        tr.classList.add('confirmed');
-                    } else if (row.estado === 'no_asiste') {
-                        tr.classList.add('declined');
-                    }
-                    
-                    tr.innerHTML = `
-                        <td><input type="text" value="${row.nombre_completo || ''}" onchange="actualizarInvitado(${row.id}, 'nombre_completo', this.value)"></td>
-                        <td>
-                            <select onchange="actualizarInvitado(${row.id}, 'relacion', this.value)">
-                                <option value="">Seleccionar...</option>
-                                <option value="familia" ${row.relacion === 'familia' ? 'selected' : ''}>👨‍👩‍👧‍👦 Familia</option>
-                                <option value="amigos" ${row.relacion === 'amigos' ? 'selected' : ''}>👥 Amigos</option>
-                                <option value="trabajo" ${row.relacion === 'trabajo' ? 'selected' : ''}>💼 Trabajo</option>
-                                <option value="vecinos" ${row.relacion === 'vecinos' ? 'selected' : ''}>🏘️ Vecinos</option>
-                                <option value="otros" ${row.relacion === 'otros' ? 'selected' : ''}>👤 Otros</option>
-                            </select>
-                        </td>
-                        <td><input type="tel" value="${row.telefono || ''}" onchange="actualizarInvitado(${row.id}, 'telefono', this.value)"></td>
-                        <td><input type="email" value="${row.email || ''}" onchange="actualizarInvitado(${row.id}, 'email', this.value)"></td>
-                        <td>
-                            <select onchange="actualizarInvitado(${row.id}, 'estado', this.value)">
-                                <option value="pendiente" ${row.estado === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
-                                <option value="confirmado" ${row.estado === 'confirmado' ? 'selected' : ''}>✅ Confirmado</option>
-                                <option value="no_asiste" ${row.estado === 'no_asiste' ? 'selected' : ''}>❌ No Asiste</option>
-                            </select>
-                        </td>
-                        <td><input type="number" min="0" value="${row.acompanantes || 0}" onchange="actualizarInvitado(${row.id}, 'acompanantes', this.value)"></td>
-                        <td><input type="text" value="${row.necesidades_especiales || ''}" onchange="actualizarInvitado(${row.id}, 'necesidades_especiales', this.value)" placeholder="Alergias, dietas especiales, etc."></td>
-                        <td><input type="text" value="${row.observaciones || ''}" onchange="actualizarInvitado(${row.id}, 'observaciones', this.value)"></td>
-                        <td class="action-buttons">
-                            <button class="btn btn-danger btn-small" onclick="eliminarInvitado(${row.id})">🗑️</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-                stmt.free();
-            } catch (error) {
-                console.error('Error cargando invitados:', error);
-                // Si hay error, mostrar mensaje en la tabla
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px;">No hay invitados registrados o hay un problema con la base de datos. Intenta agregar un nuevo invitado.</td></tr>';
-            }
-        }
-
-        function agregarNuevoInvitado() {
-            // Limpiar mensaje de sin datos
-            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
-            
-            const stmt = db.prepare("INSERT INTO invitados (nombre_completo) VALUES (?)");
-            stmt.run(['Nuevo invitado']);
-            stmt.free();
-            saveDatabase();
-            cargarInvitados();
-            actualizarEstadisticasInvitados();
-        }
-
-        function actualizarInvitado(id, campo, valor) {
-            const stmt = db.prepare(`UPDATE invitados SET ${campo} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
-            stmt.run([valor, id]);
-            stmt.free();
-            saveDatabase();
-            
-            if (campo === 'estado') {
-                cargarInvitados();
-                actualizarEstadisticasInvitados();
-            }
-        }
-
-        function eliminarInvitado(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar este invitado?')) {
-                const stmt = db.prepare("DELETE FROM invitados WHERE id = ?");
-                stmt.run([id]);
-                stmt.free();
-                saveDatabase();
-                cargarInvitados();
-                actualizarEstadisticasInvitados();
-            }
-        }
-
-        function actualizarEstadisticasInvitados() {
-            const stmt = db.prepare(`
-                SELECT 
-                    COUNT(*) as total,
-                    COUNT(CASE WHEN estado = 'confirmado' THEN 1 END) as confirmados,
-                    COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as pendientes,
-                    COUNT(CASE WHEN estado = 'no_asiste' THEN 1 END) as no_asisten,
-                    SUM(CASE WHEN estado = 'confirmado' THEN acompanantes + 1 ELSE 0 END) as total_asistentes
-                FROM invitados WHERE nombre_completo != ''
-            `);
-            stmt.step();
-            const stats = stmt.getAsObject();
-            stmt.free();
-
-            document.getElementById('totalInvitados').textContent = stats.total || 0;
-            document.getElementById('totalConfirmados').textContent = stats.confirmados || 0;
-            document.getElementById('totalPendientes').textContent = stats.pendientes || 0;
-            document.getElementById('totalNoAsisten').textContent = stats.no_asisten || 0;
-        }
-
-        function cargarAportes() {
-            const tbody = document.querySelector('#tablaAportes tbody');
-            tbody.innerHTML = '';
-
-            const stmt = db.prepare("SELECT * FROM aportes ORDER BY created_at DESC");
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                const saldo = (row.monto_comprometido || 0) - (row.monto_entregado || 0);
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><input type="text" value="${row.nombre || ''}" onchange="actualizarAporte(${row.id}, 'nombre', this.value)"></td>
-                    <td><input type="number" step="0.01" value="${row.monto_comprometido || 0}" onchange="actualizarAporte(${row.id}, 'monto_comprometido', this.value)"></td>
-                    <td><input type="number" step="0.01" value="${row.monto_entregado || 0}" onchange="actualizarAporte(${row.id}, 'monto_entregado', this.value)"></td>
-                    <td><input type="date" value="${row.fecha_aporte || ''}" onchange="actualizarAporte(${row.id}, 'fecha_aporte', this.value)"></td>
-                    <td>
-                        <select onchange="actualizarAporte(${row.id}, 'forma_pago', this.value)">
-                            <option value="">Seleccionar...</option>
-                            <option value="efectivo" ${row.forma_pago === 'efectivo' ? 'selected' : ''}>Efectivo</option>
-                            <option value="transferencia" ${row.forma_pago === 'transferencia' ? 'selected' : ''}>Transferencia</option>
-                            <option value="tarjeta" ${row.forma_pago === 'tarjeta' ? 'selected' : ''}>Tarjeta</option>
-                        </select>
-                    </td>
-                    <td><input type="text" value="${row.observaciones || ''}" onchange="actualizarAporte(${row.id}, 'observaciones', this.value)"></td>
-                    <td class="currency ${saldo > 0 ? 'pending' : ''}">₡${saldo.toFixed(2)}</td>
-                    <td class="action-buttons">
-                        <button class="btn btn-danger btn-small" onclick="eliminarAporte(${row.id})">🗑️</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            }
-            stmt.free();
-        }
-
-        function cargarGastos() {
-            const tbody = document.querySelector('#tablaGastos tbody');
-            tbody.innerHTML = '';
-
-            const stmt = db.prepare("SELECT * FROM gastos ORDER BY created_at DESC");
-            while (stmt.step()) {
-                const row = stmt.getAsObject();
-                const diferencia = (row.costo_estimado || 0) - (row.costo_real || 0);
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <select onchange="actualizarGasto(${row.id}, 'categoria', this.value)">
-                            <option value="">Seleccionar...</option>
-                            <option value="banquete" ${row.categoria === 'banquete' ? 'selected' : ''}>🍽️ Banquete</option>
-                            <option value="musica" ${row.categoria === 'musica' ? 'selected' : ''}>🎵 Música</option>
-                            <option value="decoracion" ${row.categoria === 'decoracion' ? 'selected' : ''}>🎀 Decoración</option>
-                            <option value="fotografia" ${row.categoria === 'fotografia' ? 'selected' : ''}>📸 Fotografía</option>
-                            <option value="otros" ${row.categoria === 'otros' ? 'selected' : ''}>📦 Otros</option>
-                        </select>
-                    </td>
-                    <td><input type="text" value="${row.proveedor || ''}" onchange="actualizarGasto(${row.id}, 'proveedor', this.value)"></td>
-                    <td><input type="number" step="0.01" value="${row.costo_estimado || 0}" onchange="actualizarGasto(${row.id}, 'costo_estimado', this.value)"></td>
-                    <td><input type="number" step="0.01" value="${row.costo_real || 0}" onchange="actualizarGasto(${row.id}, 'costo_real', this.value)"></td>
-                    <td class="currency ${diferencia > 0 ? 'positive-diff' : diferencia < 0 ? 'negative-diff' : ''}">₡${diferencia.toFixed(2)}</td>
-                    <td><input type="date" value="${row.fecha_pago || ''}" onchange="actualizarGasto(${row.id}, 'fecha_pago', this.value)"></td>
-                    <td><input type="text" value="${row.pagado_por || ''}" onchange="actualizarGasto(${row.id}, 'pagado_por', this.value)"></td>
-                    <td><input type="text" value="${row.observaciones || ''}" onchange="actualizarGasto(${row.id}, 'observaciones', this.value)"></td>
-                    <td class="action-buttons">
-                        <button class="btn btn-danger btn-small" onclick="eliminarGasto(${row.id})">🗑️</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            }
-            stmt.free();
-        }
-
-        function agregarNuevoAporte() {
-            // Limpiar mensaje de sin datos
-            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
-            
-            const stmt = db.prepare("INSERT INTO aportes (nombre) VALUES (?)");
-            stmt.run(['Nuevo familiar']);
-            stmt.free();
-            saveDatabase();
-            cargarAportes();
-            actualizarTotales();
-        }
-
-        function agregarNuevoGasto() {
-            // Limpiar mensaje de sin datos
-            document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
-            
-            const stmt = db.prepare("INSERT INTO gastos (categoria) VALUES (?)");
-            stmt.run(['']);
-            stmt.free();
-            saveDatabase();
-            cargarGastos();
-            actualizarTotales();
-        }
-
-        function actualizarAporte(id, campo, valor) {
-            const stmt = db.prepare(`UPDATE aportes SET ${campo} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
-            stmt.run([valor, id]);
-            stmt.free();
-            saveDatabase();
-            
-            // Recalcular saldo si es necesario
-            if (campo === 'monto_comprometido' || campo === 'monto_entregado') {
-                cargarAportes();
-            }
-            actualizarTotales();
-        }
-
-        function actualizarGasto(id, campo, valor) {
-            const stmt = db.prepare(`UPDATE gastos SET ${campo} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
-            stmt.run([valor, id]);
-            stmt.free();
-            saveDatabase();
-            
-            // Recalcular diferencia si es necesario
-            if (campo === 'costo_estimado' || campo === 'costo_real') {
-                cargarGastos();
-            }
-            actualizarTotales();
-        }
-
-        function eliminarAporte(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar este aporte?')) {
-                const stmt = db.prepare("DELETE FROM aportes WHERE id = ?");
-                stmt.run([id]);
-                stmt.free();
-                saveDatabase();
-                cargarAportes();
-                actualizarTotales();
-            }
-        }
-
-        function eliminarGasto(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
-                const stmt = db.prepare("DELETE FROM gastos WHERE id = ?");
-                stmt.run([id]);
-                stmt.free();
-                saveDatabase();
-                cargarGastos();
-                actualizarTotales();
-            }
-        }
-
-        function actualizarTotales() {
-            // Totales de gastos
-            const gastosStmt = db.prepare("SELECT SUM(costo_estimado) as total_estimado, SUM(costo_real) as total_real FROM gastos");
-            gastosStmt.step();
-            const gastosData = gastosStmt.getAsObject();
-            gastosStmt.free();
-
-            const totalEstimado = gastosData.total_estimado || 0;
-            const totalReal = gastosData.total_real || 0;
-
-            document.getElementById('totalEstimado').textContent = `₡${totalEstimado.toFixed(2)}`;
-            document.getElementById('totalReal').textContent = `₡${totalReal.toFixed(2)}`;
-            document.getElementById('totalDiferencia').textContent = `₡${(totalEstimado - totalReal).toFixed(2)}`;
-        }
-
+        
         function actualizarResumen() {
-            // Aportes
-            const aportesStmt = db.prepare("SELECT SUM(monto_comprometido) as total_comprometido, SUM(monto_entregado) as total_recibido FROM aportes");
-            aportesStmt.step();
-            const aportesData = aportesStmt.getAsObject();
-            aportesStmt.free();
-
-            // Gastos
-            const gastosStmt = db.prepare("SELECT SUM(costo_estimado) as total_estimado, SUM(costo_real) as total_real FROM gastos");
-            gastosStmt.step();
-            const gastosData = gastosStmt.getAsObject();
-            gastosStmt.free();
-
-            const totalComprometido = aportesData.total_comprometido || 0;
-            const totalRecibido = aportesData.total_recibido || 0;
-            const totalEstimado = gastosData.total_estimado || 0;
-            const totalReal = gastosData.total_real || 0;
-            const balance = totalRecibido - totalReal;
-
-            document.getElementById('totalComprometido').textContent = `₡${totalComprometido.toFixed(2)}`;
-            document.getElementById('totalRecibido').textContent = `₡${totalRecibido.toFixed(2)}`;
-            document.getElementById('resumenEstimado').textContent = `₡${totalEstimado.toFixed(2)}`;
-            document.getElementById('resumenReal').textContent = `₡${totalReal.toFixed(2)}`;
+            const totalComprometido = aportes.reduce((sum, a) => sum + (a.monto_comprometido || 0), 0);
+            const totalRecibido = aportes.reduce((sum, a) => sum + (a.monto_entregado || 0), 0);
+            const totalGastosEstimados = gastos.reduce((sum, g) => sum + (g.costo_estimado || 0), 0);
+            const totalGastosReales = gastos.reduce((sum, g) => sum + (g.costo_real || 0), 0);
+            const balance = totalRecibido - totalGastosReales;
             
-            const balanceElement = document.getElementById('balanceFinal');
-            balanceElement.textContent = `₡${balance.toFixed(2)}`;
-            
-            if (balance < 0) {
-                balanceElement.style.color = '#ff4757';
-            } else if (balance > 0) {
-                balanceElement.style.color = '#2ed573';
-            } else {
-                balanceElement.style.color = 'white';
-            }
-            
-            // Actualizar estadísticas
-            actualizarEstadisticas();
-        }
-
-        function actualizarEstadisticas() {
-            // Estadísticas de aportes
-            const aportesStatsStmt = db.prepare(`
-                SELECT 
-                    COUNT(*) as total_personas,
-                    COUNT(CASE WHEN monto_entregado >= monto_comprometido THEN 1 END) as personas_al_dia,
-                    COUNT(CASE WHEN monto_entregado < monto_comprometido THEN 1 END) as personas_pendientes
-                FROM aportes WHERE nombre != ''
-            `);
-            aportesStatsStmt.step();
-            const aportesStats = aportesStatsStmt.getAsObject();
-            aportesStatsStmt.free();
-
-            document.getElementById('statsAportes').innerHTML = `
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <p><strong>Total Familiares:</strong> ${aportesStats.total_personas}</p>
-                    <p><strong>Al día:</strong> ${aportesStats.personas_al_dia}</p>
-                    <p><strong>Pendientes:</strong> ${aportesStats.personas_pendientes}</p>
+            document.getElementById('resumenContent').innerHTML = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin: 20px 0;">
+                    <h2 style="text-align: center; margin-bottom: 30px;">📊 Resumen Financiero</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
+                            <h3>Aportes Comprometidos</h3>
+                            <p style="font-size: 2em; font-weight: bold;">₡${totalComprometido.toFixed(2)}</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
+                            <h3>Aportes Recibidos</h3>
+                            <p style="font-size: 2em; font-weight: bold;">₡${totalRecibido.toFixed(2)}</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
+                            <h3>Gastos Estimados</h3>
+                            <p style="font-size: 2em; font-weight: bold;">₡${totalGastosEstimados.toFixed(2)}</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
+                            <h3>Gastos Reales</h3>
+                            <p style="font-size: 2em; font-weight: bold;">₡${totalGastosReales.toFixed(2)}</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center; grid-column: 1 / -1;">
+                            <h3>Balance Final</h3>
+                            <p style="font-size: 2.5em; font-weight: bold; color: ${balance >= 0 ? '#4CAF50' : '#f44336'}">₡${balance.toFixed(2)}</p>
+                        </div>
+                    </div>
                 </div>
             `;
-
-            // Estadísticas de gastos
-            const gastosStatsStmt = db.prepare(`
-                SELECT 
-                    categoria,
-                    SUM(costo_real) as total_categoria
-                FROM gastos 
-                WHERE categoria != '' AND costo_real > 0
-                GROUP BY categoria
-                ORDER BY total_categoria DESC
-            `);
-            
-            let gastosHTML = '<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">';
-            while (gastosStatsStmt.step()) {
-                const row = gastosStatsStmt.getAsObject();
-                const emoji = {
-                    'banquete': '🍽️',
-                    'musica': '🎵',
-                    'decoracion': '🎀',
-                    'fotografia': '📸',
-                    'otros': '📦'
-                };
-                gastosHTML += `<p><strong>${emoji[row.categoria] || '📦'} ${row.categoria}:</strong> ₡${(row.total_categoria || 0).toFixed(2)}</p>`;
-            }
-            gastosStatsStmt.free();
-            gastosHTML += '</div>';
-            
-            document.getElementById('statsGastos').innerHTML = gastosHTML;
         }
-
+        
+        // Función para exportar Excel
         function exportarExcel() {
             const wb = XLSX.utils.book_new();
             
             // Hoja 1: Aportes
-            const aportesData = [['ID', 'Nombre del Integrante', 'Monto Comprometido', 'Monto Entregado', 'Fecha de Aporte', 'Forma de Pago', 'Observaciones', 'Saldo Pendiente']];
-            
-            const aportesStmt = db.prepare("SELECT * FROM aportes ORDER BY id");
-            while (aportesStmt.step()) {
-                const row = aportesStmt.getAsObject();
-                const saldo = (row.monto_comprometido || 0) - (row.monto_entregado || 0);
+            const aportesData = [['ID', 'Nombre', 'Monto Comprometido', 'Monto Entregado', 'Fecha', 'Forma de Pago', 'Observaciones', 'Saldo']];
+            aportes.forEach(aporte => {
+                const saldo = (aporte.monto_comprometido || 0) - (aporte.monto_entregado || 0);
                 aportesData.push([
-                    row.id,
-                    row.nombre || '',
-                    row.monto_comprometido || 0,
-                    row.monto_entregado || 0,
-                    row.fecha_aporte || '',
-                    row.forma_pago || '',
-                    row.observaciones || '',
+                    aporte.id,
+                    aporte.nombre || '',
+                    aporte.monto_comprometido || 0,
+                    aporte.monto_entregado || 0,
+                    aporte.fecha_aporte || '',
+                    aporte.forma_pago || '',
+                    aporte.observaciones || '',
                     saldo
                 ]);
-            }
-            aportesStmt.free();
+            });
             
             const ws1 = XLSX.utils.aoa_to_sheet(aportesData);
-            XLSX.utils.book_append_sheet(wb, ws1, 'Aportes de la Familia');
+            XLSX.utils.book_append_sheet(wb, ws1, 'Aportes');
             
             // Hoja 2: Gastos
-            const gastosData = [['ID', 'Categoría', 'Proveedor', 'Costo Estimado', 'Costo Real', 'Diferencia', 'Fecha de Pago', 'Pagado Por', 'Observaciones']];
-            
-            const gastosStmt = db.prepare("SELECT * FROM gastos ORDER BY id");
-            while (gastosStmt.step()) {
-                const row = gastosStmt.getAsObject();
-                const diferencia = (row.costo_estimado || 0) - (row.costo_real || 0);
+            const gastosData = [['ID', 'Categoría', 'Proveedor', 'Costo Estimado', 'Costo Real', 'Diferencia', 'Fecha Pago', 'Pagado Por', 'Observaciones']];
+            gastos.forEach(gasto => {
+                const diferencia = (gasto.costo_estimado || 0) - (gasto.costo_real || 0);
                 gastosData.push([
-                    row.id,
-                    row.categoria || '',
-                    row.proveedor || '',
-                    row.costo_estimado || 0,
-                    row.costo_real || 0,
+                    gasto.id,
+                    gasto.categoria || '',
+                    gasto.proveedor || '',
+                    gasto.costo_estimado || 0,
+                    gasto.costo_real || 0,
                     diferencia,
-                    row.fecha_pago || '',
-                    row.pagado_por || '',
-                    row.observaciones || ''
+                    gasto.fecha_pago || '',
+                    gasto.pagado_por || '',
+                    gasto.observaciones || ''
                 ]);
-            }
-            gastosStmt.free();
+            });
             
             const ws2 = XLSX.utils.aoa_to_sheet(gastosData);
-            XLSX.utils.book_append_sheet(wb, ws2, 'Gastos de la Fiesta');
+            XLSX.utils.book_append_sheet(wb, ws2, 'Gastos');
             
-            // Hoja 3: Resumen
-            const aportesResumenStmt = db.prepare("SELECT SUM(monto_comprometido) as total_comprometido, SUM(monto_entregado) as total_recibido FROM aportes");
-            aportesResumenStmt.step();
-            const aportesResumen = aportesResumenStmt.getAsObject();
-            aportesResumenStmt.free();
-
-            const gastosResumenStmt = db.prepare("SELECT SUM(costo_estimado) as total_estimado, SUM(costo_real) as total_real FROM gastos");
-            gastosResumenStmt.step();
-            const gastosResumen = gastosResumenStmt.getAsObject();
-            gastosResumenStmt.free();
-
-            const resumenData = [];
-            resumenData.push(['Concepto', 'Monto']);
-            resumenData.push(['Total Aportes Comprometidos', aportesResumen.total_comprometido || 0]);
-            resumenData.push(['Total Aportes Recibidos', aportesResumen.total_recibido || 0]);
-            resumenData.push(['Total Gastos Estimados', gastosResumen.total_estimado || 0]);
-            resumenData.push(['Total Gastos Reales', gastosResumen.total_real || 0]);
-            resumenData.push(['Balance Final', (aportesResumen.total_recibido || 0) - (gastosResumen.total_real || 0)]);
-            
-            const ws3 = XLSX.utils.aoa_to_sheet(resumenData);
-            XLSX.utils.book_append_sheet(wb, ws3, 'Resumen General');
-            
-            // Hoja 4: Tareas
+            // Hoja 3: Tareas
             const tareasData = [['ID', 'Tarea', 'Categoría', 'Responsable', 'Fecha Límite', 'Prioridad', 'Estado', 'Observaciones']];
-            
-            const tareasStmt = db.prepare("SELECT * FROM tareas ORDER BY id");
-            while (tareasStmt.step()) {
-                const row = tareasStmt.getAsObject();
+            tareas.forEach(tarea => {
                 tareasData.push([
-                    row.id,
-                    row.tarea || '',
-                    row.categoria || '',
-                    row.responsable || '',
-                    row.fecha_limite || '',
-                    row.prioridad || '',
-                    row.estado || '',
-                    row.observaciones || ''
+                    tarea.id,
+                    tarea.tarea || '',
+                    tarea.categoria || '',
+                    tarea.responsable || '',
+                    tarea.fecha_limite || '',
+                    tarea.prioridad || '',
+                    tarea.estado || '',
+                    tarea.observaciones || ''
                 ]);
-            }
-            tareasStmt.free();
+            });
             
-            const ws4 = XLSX.utils.aoa_to_sheet(tareasData);
-            XLSX.utils.book_append_sheet(wb, ws4, 'Tareas');
+            const ws3 = XLSX.utils.aoa_to_sheet(tareasData);
+            XLSX.utils.book_append_sheet(wb, ws3, 'Tareas');
             
-            // Hoja 5: Invitados
-            const invitadosData = [['ID', 'Nombre Completo', 'Relación', 'Teléfono', 'Email', 'Estado', 'Acompañantes', 'Necesidades Especiales', 'Observaciones']];
-            
-            const invitadosStmt = db.prepare("SELECT * FROM invitados ORDER BY id");
-            while (invitadosStmt.step()) {
-                const row = invitadosStmt.getAsObject();
+            // Hoja 4: Invitados
+            const invitadosData = [['ID', 'Nombre', 'Relación', 'Teléfono', 'Email', 'Estado', 'Acompañantes', 'Necesidades Especiales', 'Observaciones']];
+            invitados.forEach(invitado => {
                 invitadosData.push([
-                    row.id,
-                    row.nombre_completo || '',
-                    row.relacion || '',
-                    row.telefono || '',
-                    row.email || '',
-                    row.estado || '',
-                    row.acompanantes || 0,
-                    row.necesidades_especiales || '',
-                    row.observaciones || ''
+                    invitado.id,
+                    invitado.nombre_completo || '',
+                    invitado.relacion || '',
+                    invitado.telefono || '',
+                    invitado.email || '',
+                    invitado.estado || '',
+                    invitado.acompanantes || 0,
+                    invitado.necesidades_especiales || '',
+                    invitado.observaciones || ''
                 ]);
-            }
-            invitadosStmt.free();
+            });
             
-            const ws5 = XLSX.utils.aoa_to_sheet(invitadosData);
-            XLSX.utils.book_append_sheet(wb, ws5, 'Invitados');
+            const ws4 = XLSX.utils.aoa_to_sheet(invitadosData);
+            XLSX.utils.book_append_sheet(wb, ws4, 'Invitados');
             
-            // Descargar el archivo con fecha
             const fecha = new Date().toISOString().split('T')[0];
-            XLSX.writeFile(wb, `fiesta_50_aniversario_${fecha}.xlsx`);
-            alert('📊 ¡Archivo Excel descargado exitosamente! 🎉');
-        }
-
-        function exportarBaseDatos() {
-            if (!db) {
-                alert('Base de datos no disponible');
-                return;
-            }
-
-            const data = db.export();
-            const blob = new Blob([data], { type: 'application/octet-stream' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `fiesta_50_aniversario_${new Date().toISOString().split('T')[0]}.db`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            alert('¡Base de datos exportada exitosamente! 💾');
-        }
-
-        function importarBaseDatos() {
-            document.getElementById('fileInput').click();
-        }
-
-        function cargarBaseDatos(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const arrayBuffer = e.target.result;
-                    const data = new Uint8Array(arrayBuffer);
-                    
-                    // Crear nueva base de datos con los datos importados
-                    db = new SQL.Database(data);
-                    saveDatabase();
-                    
-                    // Limpiar mensajes de sin datos
-                    document.querySelectorAll('.mensaje-sin-datos').forEach(msg => msg.remove());
-                    
-                    cargarDatos();
-                    
-                    alert('🎉 ¡Base de datos importada exitosamente!\n\nTodos tus datos están ahora disponibles en este dispositivo.');
-                    updateDBStatus('🟢 BD Importada', 'db-connected');
-                } catch (error) {
-                    console.error('Error importando base de datos:', error);
-                    alert('❌ Error al importar la base de datos.\nVerifica que el archivo sea válido y esté en formato .db');
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function limpiarBaseDatos() {
-            if (confirm('⚠️ ¿Estás seguro de que quieres eliminar TODOS los datos?\n\nEsta acción no se puede deshacer.')) {
-                if (confirm('🚨 CONFIRMACIÓN FINAL: Se borrarán todos los aportes, gastos, tareas e invitados registrados.')) {
-                    db.run("DELETE FROM aportes");
-                    db.run("DELETE FROM gastos");
-                    db.run("DELETE FROM tareas");
-                    db.run("DELETE FROM invitados");
-                    saveDatabase();
-                    cargarDatos();
-                    alert('✅ Base de datos limpiada exitosamente');
-                }
-            }
-        }
-
-        // Función para importar desde Excel
-        function importarExcel() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.xlsx,.xls';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        
-                        let importCount = 0;
-                        
-                        // Importar Aportes
-                        if (workbook.SheetNames.includes('Aportes de la Familia')) {
-                            const aportesSheet = workbook.Sheets['Aportes de la Familia'];
-                            const aportesData = XLSX.utils.sheet_to_json(aportesSheet, { header: 1 });
-                            
-                            // Saltar la primera fila (headers)
-                            for (let i = 1; i < aportesData.length; i++) {
-                                const row = aportesData[i];
-                                if (row[1] && row[1].toString().trim() !== '') { // Si tiene nombre
-                                    const stmt = db.prepare(`
-                                        INSERT INTO aportes (nombre, monto_comprometido, monto_entregado, fecha_aporte, forma_pago, observaciones)
-                                        VALUES (?, ?, ?, ?, ?, ?)
-                                    `);
-                                    stmt.run([
-                                        row[1]?.toString() || '',
-                                        parseFloat(row[2]) || 0,
-                                        parseFloat(row[3]) || 0,
-                                        row[4]?.toString() || '',
-                                        row[5]?.toString() || '',
-                                        row[6]?.toString() || ''
-                                    ]);
-                                    stmt.free();
-                                    importCount++;
-                                }
-                            }
-                        }
-                        
-                        // Importar Gastos
-                        if (workbook.SheetNames.includes('Gastos de la Fiesta')) {
-                            const gastosSheet = workbook.Sheets['Gastos de la Fiesta'];
-                            const gastosData = XLSX.utils.sheet_to_json(gastosSheet, { header: 1 });
-                            
-                            for (let i = 1; i < gastosData.length; i++) {
-                                const row = gastosData[i];
-                                if (row[1] && row[1].toString().trim() !== '') { // Si tiene categoría
-                                    const stmt = db.prepare(`
-                                        INSERT INTO gastos (categoria, proveedor, costo_estimado, costo_real, fecha_pago, pagado_por, observaciones)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                                    `);
-                                    stmt.run([
-                                        row[1]?.toString() || '',
-                                        row[2]?.toString() || '',
-                                        parseFloat(row[3]) || 0,
-                                        parseFloat(row[4]) || 0,
-                                        row[6]?.toString() || '',
-                                        row[7]?.toString() || '',
-                                        row[8]?.toString() || ''
-                                    ]);
-                                    stmt.free();
-                                    importCount++;
-                                }
-                            }
-                        }
-                        
-                        // Importar Tareas
-                        if (workbook.SheetNames.includes('Tareas')) {
-                            const tareasSheet = workbook.Sheets['Tareas'];
-                            const tareasData = XLSX.utils.sheet_to_json(tareasSheet, { header: 1 });
-                            
-                            for (let i = 1; i < tareasData.length; i++) {
-                                const row = tareasData[i];
-                                if (row[1] && row[1].toString().trim() !== '') { // Si tiene tarea
-                                    const stmt = db.prepare(`
-                                        INSERT INTO tareas (tarea, categoria, responsable, fecha_limite, prioridad, estado, observaciones)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                                    `);
-                                    stmt.run([
-                                        row[1]?.toString() || '',
-                                        row[2]?.toString() || '',
-                                        row[3]?.toString() || '',
-                                        row[4]?.toString() || '',
-                                        row[5]?.toString() || 'media',
-                                        row[6]?.toString() || 'pendiente',
-                                        row[7]?.toString() || ''
-                                    ]);
-                                    stmt.free();
-                                    importCount++;
-                                }
-                            }
-                        }
-                        
-                        // Importar Invitados
-                        if (workbook.SheetNames.includes('Invitados')) {
-                            const invitadosSheet = workbook.Sheets['Invitados'];
-                            const invitadosData = XLSX.utils.sheet_to_json(invitadosSheet, { header: 1 });
-                            
-                            for (let i = 1; i < invitadosData.length; i++) {
-                                const row = invitadosData[i];
-                                if (row[1] && row[1].toString().trim() !== '') { // Si tiene nombre
-                                    const stmt = db.prepare(`
-                                        INSERT INTO invitados (nombre_completo, relacion, telefono, email, estado, acompanantes, necesidades_especiales, observaciones)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                                    `);
-                                    stmt.run([
-                                        row[1]?.toString() || '',
-                                        row[2]?.toString() || '',
-                                        row[3]?.toString() || '',
-                                        row[4]?.toString() || '',
-                                        row[5]?.toString() || 'pendiente',
-                                        parseInt(row[6]) || 0,
-                                        row[7]?.toString() || '',
-                                        row[8]?.toString() || ''
-                                    ]);
-                                    stmt.free();
-                                    importCount++;
-                                }
-                            }
-                        }
-                        
-                        saveDatabase();
-                        cargarDatos();
-                        alert(`📈 Archivo Excel importado exitosamente!\n${importCount} registros importados.`);
-                        
-                    } catch (error) {
-                        console.error('Error importando Excel:', error);
-                        alert('❌ Error al importar el archivo Excel.\nVerifica que el formato sea correcto y que sea un archivo Excel válido.');
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            };
-            input.click();
-        }
-
-        // Inicializar la aplicación cuando se carga la página
-        window.addEventListener('load', async function() {
-            await initSQLite();
-            // Inicializar filtros por defecto
-            setTimeout(() => {
-                if (document.getElementById('btnTodas')) {
-                    filtrarTareas('todas');
-                }
-            }, 500);
-        });
-
-        // Función para limpiar registros vacíos
-        function limpiarRegistrosVacios() {
-            if (confirm('¿Deseas eliminar los registros que no tienen información relevante?')) {
-                try {
-                    // Limpiar aportes sin nombre
-                    db.run("DELETE FROM aportes WHERE nombre = '' OR nombre IS NULL");
-                    
-                    // Limpiar gastos sin categoría
-                    db.run("DELETE FROM gastos WHERE categoria = '' OR categoria IS NULL");
-                    
-                    // Limpiar tareas sin descripción
-                    db.run("DELETE FROM tareas WHERE tarea = '' OR tarea IS NULL");
-                    
-                    // Limpiar invitados sin nombre
-                    db.run("DELETE FROM invitados WHERE nombre_completo = '' OR nombre_completo IS NULL");
-                    
-                    saveDatabase();
-                    cargarDatos();
-                    alert('✅ Registros vacíos eliminados exitosamente');
-                } catch (error) {
-                    console.error('Error limpiando registros:', error);
-                    alert('❌ Error al limpiar registros vacíos');
-                }
-            }
-        }
-
-        // Función para mostrar ayuda de sincronización
-        function mostrarAyudaSincronizacion() {
-            const mensaje = `
-📱 ¿No ves tus datos en este dispositivo?
-
-Los datos se almacenan localmente en cada navegador por seguridad.
-
-🔄 PARA SINCRONIZAR:
-
-1️⃣ EN PC: Haz clic en "💾 Exportar Base de Datos"
-2️⃣ ENVÍA el archivo .db a este dispositivo (WhatsApp, email)
-3️⃣ AQUÍ: Haz clic en "📂 Importar Base de Datos"
-4️⃣ SELECCIONA el archivo enviado
-5️⃣ ¡LISTO! Todos tus datos aparecerán
-
-💡 TAMBIÉN PUEDES:
-• Usar "📊 Descargar Excel" y "📈 Importar Excel"
-• Empezar desde cero en este dispositivo
-
-🔒 TUS DATOS ESTÁN SEGUROS:
-Todo se almacena solo en tu dispositivo, nadie más tiene acceso.
-            `;
-            
-            alert(mensaje);
+            XLSX.writeFile(wb, `fiesta_50_aniversario_cloud_${fecha}.xlsx`);
+            alert('📊 ¡Archivo Excel descargado exitosamente desde la nube! 🎉');
         }
     </script>
 </body>
