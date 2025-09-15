@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrucciones - Organizador de Fiesta</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #19547b 0%, #ffd89b 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #19547b;
+        }
+        
+        .feature-card h3 {
+            margin: 0 0 10px 0;
+            color: #19547b;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 0;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Organizador de Fiesta</h1>
+            <p>Instrucciones de Uso</p>
+        </div>
+        
+        <div class="content">
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="index.html" class="btn">🚀 Abrir Aplicación</a>
+            </div>
+            
+            <h2>📱 ¿Qué puedes hacer con esta aplicación?</h2>
+            
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h3>💰 Aportes Familiares</h3>
+                    <p>Controla quien ha aportado dinero y cuánto falta por recibir.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>💸 Gastos</h3>
+                    <p>Registra todos los gastos organizados por categorías.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📝 Tareas</h3>
+                    <p>Organiza las tareas pendientes con responsables y fechas.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>👥 Invitados</h3>
+                    <p>Gestiona la lista de invitados y sus confirmaciones.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📊 Resumen</h3>
+                    <p>Ve el estado general de la organización de tu fiesta.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📱 Responsive</h3>
+                    <p>Funciona perfectamente en móviles y tablets.</p>
+                </div>
+            </div>
+            
+            <h2>🚀 Cómo Empezar</h2>
+            <ol>
+                <li><strong>Abre la aplicación:</strong> Haz clic en "Abrir Aplicación" arriba</li>
+                <li><strong>Agrega familiares:</strong> Ve a la pestaña "Aportes" y empieza a registrar</li>
+                <li><strong>Registra gastos:</strong> Anota todos los gastos estimados en "Gastos"</li>
+                <li><strong>Organiza tareas:</strong> Crea y asigna tareas en "Tareas"</li>
+                <li><strong>Gestiona invitados:</strong> Lleva el control de quién viene en "Invitados"</li>
+                <li><strong>Revisa progreso:</strong> Consulta el "Resumen" para ver el estado general</li>
+            </ol>
+            
+            <h2>💾 Gestión de Datos</h2>
+            <p><strong>Tus datos están seguros:</strong> Todo se guarda localmente en tu navegador. Nadie más tiene acceso.</p>
+            
+            <h3>📊 Exportar a Excel</h3>
+            <p>Descarga un archivo Excel con todos tus datos organizados en pestañas.</p>
+            
+            <h3>📈 Importar desde Excel</h3>
+            <p>¿Ya tienes datos en Excel? Puedes importarlos directamente. El archivo debe tener estas hojas:</p>
+            <ul>
+                <li><strong>"Aportes de la Familia"</strong> - con datos de familiares</li>
+                <li><strong>"Gastos de la Fiesta"</strong> - con gastos por categoría</li>
+                <li><strong>"Tareas"</strong> - con tareas y responsables</li>
+                <li><strong>"Invitados"</strong> - con lista de invitados</li>
+            </ul>
+            
+            <h3>💾 Respaldos</h3>
+            <p><strong>Importante:</strong> Haz respaldos regulares usando "Exportar Base de Datos".</p>
+            
+            <h2>🌐 Para usar en GitHub Pages</h2>
+            <p>Si quieres que múltiples familiares accedan a la aplicación:</p>
+            <ol>
+                <li>Sube estos archivos a un repositorio de GitHub</li>
+                <li>Activa GitHub Pages en la configuración</li>
+                <li>Comparte la URL con tu familia</li>
+                <li>Cada quien puede usar la aplicación desde su dispositivo</li>
+            </ol>
+            
+            <div class="code-block">
+                <strong>URL de ejemplo:</strong><br>
+                https://tuusuario.github.io/organizador-fiesta/
+            </div>
+            
+            <h2>📱 Compatible con Móviles</h2>
+            <p>La aplicación está optimizada para:</p>
+            <ul>
+                <li>📱 Teléfonos móviles (Android/iOS)</li>
+                <li>📱 Tablets</li>
+                <li>💻 Computadoras de escritorio</li>
+                <li>💻 Laptops</li>
+            </ul>
+            
+            <h2>❓ Preguntas Frecuentes</h2>
+            
+            <h3>¿Necesito internet para usar la aplicación?</h3>
+            <p>Solo para cargarla la primera vez. Después funciona sin internet.</p>
+            
+            <h3>¿Se pierden mis datos si cierro el navegador?</h3>
+            <p>No, los datos se guardan automáticamente en tu navegador.</p>
+            
+            <h3>¿Puedo usar la aplicación en diferentes dispositivos?</h3>
+            <p>Sí, pero tendrás que exportar los datos de un dispositivo e importarlos en otro.</p>
+            
+            <h3>¿Es segura mi información?</h3>
+            <p>Completamente. Todo se almacena localmente en tu dispositivo, no se envía a ningún servidor.</p>
+            
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="index.html" class="btn">🎉 ¡Empezar a Organizar!</a>
+            </div>
+            
+            <div style="text-align: center; background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3>🎊 ¡Que tengas una fiesta inolvidable!</h3>
+                <p>Esta aplicación está diseñada para hacer que organizar tu celebración sea fácil y divertido.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

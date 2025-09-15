@@ -262,6 +262,7 @@
         .action-buttons {
             display: inline-flex;
             gap: 5px;
+            white-space: nowrap;
         }
         
         .btn-small {
@@ -359,6 +360,124 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Mejoras adicionales para responsive */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .tab {
+                min-width: 120px;
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+            
+            table {
+                font-size: 12px;
+                min-width: 800px;
+            }
+            
+            .tab-content {
+                overflow-x: auto;
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+                min-width: 80px;
+            }
+            
+            input, select {
+                font-size: 12px;
+                padding: 6px;
+            }
+            
+            .btn {
+                font-size: 14px;
+                padding: 10px 16px;
+                margin: 5px 2px;
+            }
+            
+            .btn-small {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 10px;
+            }
+            
+            .summary-item .amount {
+                font-size: 1.5em;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+            
+            .db-status {
+                position: static;
+                margin: 10px auto;
+                display: inline-block;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .tab {
+                font-size: 12px;
+                padding: 10px 8px;
+                min-width: 100px;
+            }
+            
+            .tab-content {
+                padding: 10px;
+            }
+            
+            table {
+                font-size: 11px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-section {
+                padding: 15px;
+            }
+            
+            .instructions {
+                font-size: 14px;
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -585,10 +704,12 @@
         
         <div class="export-section">
             <h3>💾 Gestión de Datos</h3>
-            <p>Exporta tu base de datos o descarga un archivo Excel con toda la información.</p>
+            <p>Exporta tu base de datos o descarga un archivo Excel con toda la información. También puedes importar datos desde Excel y gestionar registros vacíos.</p>
             <button class="btn" onclick="exportarExcel()">📊 Descargar Excel</button>
+            <button class="btn" onclick="importarExcel()" style="background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);">📈 Importar Excel</button>
             <button class="btn" onclick="exportarBaseDatos()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">💾 Exportar Base de Datos</button>
             <button class="btn" onclick="importarBaseDatos()" style="background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%);">📂 Importar Base de Datos</button>
+            <button class="btn" onclick="limpiarRegistrosVacios()" style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">🧹 Limpiar Vacíos</button>
             <button class="btn btn-danger" onclick="limpiarBaseDatos()">🗑️ Limpiar Todo</button>
             <input type="file" id="fileInput" accept=".db,.sqlite,.sqlite3" style="display: none;" onchange="cargarBaseDatos(event)">
         </div>
@@ -1393,8 +1514,10 @@
             const ws5 = XLSX.utils.aoa_to_sheet(invitadosData);
             XLSX.utils.book_append_sheet(wb, ws5, 'Invitados');
             
-            XLSX.writeFile(wb, 'Organizador_Fiesta_50_Aniversario_SQLite.xlsx');
-            alert('¡Archivo Excel descargado exitosamente! 🎉');
+            // Descargar el archivo con fecha
+            const fecha = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `fiesta_50_aniversario_${fecha}.xlsx`);
+            alert('📊 ¡Archivo Excel descargado exitosamente! 🎉');
         }
 
         function exportarBaseDatos() {
@@ -1461,6 +1584,146 @@
             }
         }
 
+        // Función para importar desde Excel
+        function importarExcel() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx,.xls';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        
+                        let importCount = 0;
+                        
+                        // Importar Aportes
+                        if (workbook.SheetNames.includes('Aportes de la Familia')) {
+                            const aportesSheet = workbook.Sheets['Aportes de la Familia'];
+                            const aportesData = XLSX.utils.sheet_to_json(aportesSheet, { header: 1 });
+                            
+                            // Saltar la primera fila (headers)
+                            for (let i = 1; i < aportesData.length; i++) {
+                                const row = aportesData[i];
+                                if (row[1] && row[1].toString().trim() !== '') { // Si tiene nombre
+                                    const stmt = db.prepare(`
+                                        INSERT INTO aportes (nombre, monto_comprometido, monto_entregado, fecha_aporte, forma_pago, observaciones)
+                                        VALUES (?, ?, ?, ?, ?, ?)
+                                    `);
+                                    stmt.run([
+                                        row[1]?.toString() || '',
+                                        parseFloat(row[2]) || 0,
+                                        parseFloat(row[3]) || 0,
+                                        row[4]?.toString() || '',
+                                        row[5]?.toString() || '',
+                                        row[6]?.toString() || ''
+                                    ]);
+                                    stmt.free();
+                                    importCount++;
+                                }
+                            }
+                        }
+                        
+                        // Importar Gastos
+                        if (workbook.SheetNames.includes('Gastos de la Fiesta')) {
+                            const gastosSheet = workbook.Sheets['Gastos de la Fiesta'];
+                            const gastosData = XLSX.utils.sheet_to_json(gastosSheet, { header: 1 });
+                            
+                            for (let i = 1; i < gastosData.length; i++) {
+                                const row = gastosData[i];
+                                if (row[1] && row[1].toString().trim() !== '') { // Si tiene categoría
+                                    const stmt = db.prepare(`
+                                        INSERT INTO gastos (categoria, proveedor, costo_estimado, costo_real, fecha_pago, pagado_por, observaciones)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                                    `);
+                                    stmt.run([
+                                        row[1]?.toString() || '',
+                                        row[2]?.toString() || '',
+                                        parseFloat(row[3]) || 0,
+                                        parseFloat(row[4]) || 0,
+                                        row[6]?.toString() || '',
+                                        row[7]?.toString() || '',
+                                        row[8]?.toString() || ''
+                                    ]);
+                                    stmt.free();
+                                    importCount++;
+                                }
+                            }
+                        }
+                        
+                        // Importar Tareas
+                        if (workbook.SheetNames.includes('Tareas')) {
+                            const tareasSheet = workbook.Sheets['Tareas'];
+                            const tareasData = XLSX.utils.sheet_to_json(tareasSheet, { header: 1 });
+                            
+                            for (let i = 1; i < tareasData.length; i++) {
+                                const row = tareasData[i];
+                                if (row[1] && row[1].toString().trim() !== '') { // Si tiene tarea
+                                    const stmt = db.prepare(`
+                                        INSERT INTO tareas (tarea, categoria, responsable, fecha_limite, prioridad, estado, observaciones)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                                    `);
+                                    stmt.run([
+                                        row[1]?.toString() || '',
+                                        row[2]?.toString() || '',
+                                        row[3]?.toString() || '',
+                                        row[4]?.toString() || '',
+                                        row[5]?.toString() || 'media',
+                                        row[6]?.toString() || 'pendiente',
+                                        row[7]?.toString() || ''
+                                    ]);
+                                    stmt.free();
+                                    importCount++;
+                                }
+                            }
+                        }
+                        
+                        // Importar Invitados
+                        if (workbook.SheetNames.includes('Invitados')) {
+                            const invitadosSheet = workbook.Sheets['Invitados'];
+                            const invitadosData = XLSX.utils.sheet_to_json(invitadosSheet, { header: 1 });
+                            
+                            for (let i = 1; i < invitadosData.length; i++) {
+                                const row = invitadosData[i];
+                                if (row[1] && row[1].toString().trim() !== '') { // Si tiene nombre
+                                    const stmt = db.prepare(`
+                                        INSERT INTO invitados (nombre_completo, relacion, telefono, email, estado, acompanantes, necesidades_especiales, observaciones)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                                    `);
+                                    stmt.run([
+                                        row[1]?.toString() || '',
+                                        row[2]?.toString() || '',
+                                        row[3]?.toString() || '',
+                                        row[4]?.toString() || '',
+                                        row[5]?.toString() || 'pendiente',
+                                        parseInt(row[6]) || 0,
+                                        row[7]?.toString() || '',
+                                        row[8]?.toString() || ''
+                                    ]);
+                                    stmt.free();
+                                    importCount++;
+                                }
+                            }
+                        }
+                        
+                        saveDatabase();
+                        cargarDatos();
+                        alert(`📈 Archivo Excel importado exitosamente!\n${importCount} registros importados.`);
+                        
+                    } catch (error) {
+                        console.error('Error importando Excel:', error);
+                        alert('❌ Error al importar el archivo Excel.\nVerifica que el formato sea correcto y que sea un archivo Excel válido.');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            };
+            input.click();
+        }
+
         // Inicializar la aplicación cuando se carga la página
         window.addEventListener('load', async function() {
             await initSQLite();
@@ -1471,6 +1734,32 @@
                 }
             }, 500);
         });
+
+        // Función para limpiar registros vacíos
+        function limpiarRegistrosVacios() {
+            if (confirm('¿Deseas eliminar los registros que no tienen información relevante?')) {
+                try {
+                    // Limpiar aportes sin nombre
+                    db.run("DELETE FROM aportes WHERE nombre = '' OR nombre IS NULL");
+                    
+                    // Limpiar gastos sin categoría
+                    db.run("DELETE FROM gastos WHERE categoria = '' OR categoria IS NULL");
+                    
+                    // Limpiar tareas sin descripción
+                    db.run("DELETE FROM tareas WHERE tarea = '' OR tarea IS NULL");
+                    
+                    // Limpiar invitados sin nombre
+                    db.run("DELETE FROM invitados WHERE nombre_completo = '' OR nombre_completo IS NULL");
+                    
+                    saveDatabase();
+                    cargarDatos();
+                    alert('✅ Registros vacíos eliminados exitosamente');
+                } catch (error) {
+                    console.error('Error limpiando registros:', error);
+                    alert('❌ Error al limpiar registros vacíos');
+                }
+            }
+        }
     </script>
 </body>
 </html>
