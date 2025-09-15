@@ -300,6 +300,163 @@
                 padding: 15px;
             }
         }
+        
+        /* Estilos para reporte imprimible */
+        .reporte-completo {
+            display: none;
+            background: white;
+            padding: 30px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .reporte-header {
+            text-align: center;
+            border-bottom: 3px solid #19547b;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .reporte-header h1 {
+            color: #19547b;
+            font-size: 2.5em;
+            margin: 0;
+        }
+        
+        .reporte-header p {
+            color: #666;
+            font-size: 1.2em;
+            margin: 10px 0 0 0;
+        }
+        
+        .reporte-seccion {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+        
+        .reporte-seccion h2 {
+            color: #19547b;
+            font-size: 1.8em;
+            border-bottom: 2px solid #ffd89b;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .reporte-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .reporte-tabla th {
+            background: #19547b;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        
+        .reporte-tabla td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: top;
+        }
+        
+        .reporte-tabla tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .reporte-resumen {
+            background: linear-gradient(135deg, #19547b 0%, #ffd89b 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .reporte-resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .reporte-resumen-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .reporte-resumen-item h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .reporte-resumen-item .valor {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .reporte-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+            color: #666;
+        }
+        
+        /* Estilos para impresión */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            .reporte-completo, .reporte-completo * {
+                visibility: visible;
+            }
+            
+            .reporte-completo {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+                padding: 20px;
+            }
+            
+            .reporte-seccion {
+                page-break-inside: avoid;
+                margin-bottom: 30px;
+            }
+            
+            .reporte-tabla {
+                font-size: 10px;
+            }
+            
+            .reporte-tabla th {
+                background: #19547b !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .reporte-resumen {
+                background: #19547b !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            @page {
+                margin: 1cm;
+                size: A4;
+            }
+        }
     </style>
 </head>
 <body>
@@ -454,6 +611,11 @@
                     <strong>📊 Resumen financiero actualizado en tiempo real desde la nube.</strong>
                 </div>
                 
+                <div style="text-align: center; margin: 20px 0;">
+                    <button class="btn" onclick="generarReporteCompleto()" style="background: #e91e63; margin-right: 10px;">📋 Generar Reporte Completo</button>
+                    <button class="btn" onclick="imprimirReporte()" style="background: #9c27b0;">🖨️ Imprimir PDF</button>
+                </div>
+                
                 <div id="resumenContent">
                     <!-- Se cargará dinámicamente -->
                 </div>
@@ -461,10 +623,33 @@
         </div>
         
         <div style="text-align: center; padding: 20px; background: #f8f9fa; margin: 20px 0; border-radius: 8px;">
-            <h3>📊 Exportar Datos</h3>
-            <p>Descarga tus datos en formato Excel</p>
-            <button class="btn" onclick="exportarExcel()">📊 Descargar Excel</button>
+            <h3>📊 Importar/Exportar Datos</h3>
+            
+            <!-- Importar Excel -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                <h4>📥 Importar desde Excel</h4>
+                <p>Sube un archivo Excel con datos de la fiesta</p>
+                <div style="margin: 10px 0;">
+                    <button class="btn" onclick="mostrarAyudaImportacion()" style="background: #2196F3; margin-right: 10px;">❓ Ver Formato</button>
+                    <button class="btn" onclick="descargarPlantilla()" style="background: #FF9800;">📄 Descargar Plantilla</button>
+                </div>
+                <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="margin: 10px; padding: 10px;">
+                <button class="btn" onclick="importarExcel()">📥 Cargar Excel a la Nube</button>
+                <div id="importStatus" style="margin-top: 10px; font-weight: bold;"></div>
+            </div>
+            
+            <!-- Exportar Excel -->
+            <div style="padding: 15px; background: #f3e5f5; border-radius: 8px;">
+                <h4>📤 Exportar a Excel</h4>
+                <p>Descarga todos tus datos desde la nube en formato Excel</p>
+                <button class="btn" onclick="exportarExcel()">📊 Descargar Excel</button>
+            </div>
         </div>
+    </div>
+
+    <!-- Reporte Completo para Imprimir -->
+    <div id="reporteCompleto" class="reporte-completo">
+        <!-- Se generará dinámicamente -->
     </div>
 
     <script>
@@ -1044,7 +1229,190 @@ con tus datos siempre sincronizados.`);
             `;
         }
         
-        // Función para exportar Excel
+        // Función para importar Excel
+        async function importarExcel() {
+            const fileInput = document.getElementById('excelFileInput');
+            const statusDiv = document.getElementById('importStatus');
+            
+            if (!fileInput.files[0]) {
+                alert('Por favor selecciona un archivo Excel');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            statusDiv.innerHTML = '<span class="loading"></span> Procesando archivo...';
+            statusDiv.style.color = '#19547b';
+            
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                let importados = {
+                    aportes: 0,
+                    gastos: 0,
+                    tareas: 0,
+                    invitados: 0
+                };
+                
+                // Importar Aportes
+                if (workbook.SheetNames.includes('Aportes')) {
+                    const aportesSheet = workbook.Sheets['Aportes'];
+                    const aportesData = XLSX.utils.sheet_to_json(aportesSheet, { header: 1 });
+                    
+                    // Saltar la primera fila (encabezados)
+                    for (let i = 1; i < aportesData.length; i++) {
+                        const row = aportesData[i];
+                        if (row[1]) { // Si tiene nombre
+                            try {
+                                await window.firebaseFunctions.addDoc(
+                                    window.firebaseFunctions.collection(window.firebaseDB, 'aportes'),
+                                    {
+                                        nombre: row[1] || '',
+                                        monto_comprometido: parseFloat(row[2]) || 0,
+                                        monto_entregado: parseFloat(row[3]) || 0,
+                                        fecha_aporte: row[4] || '',
+                                        forma_pago: row[5] || '',
+                                        observaciones: row[6] || '',
+                                        imported_at: new Date()
+                                    }
+                                );
+                                importados.aportes++;
+                            } catch (error) {
+                                console.error('Error importando aporte:', error);
+                            }
+                        }
+                    }
+                }
+                
+                // Importar Gastos
+                if (workbook.SheetNames.includes('Gastos')) {
+                    const gastosSheet = workbook.Sheets['Gastos'];
+                    const gastosData = XLSX.utils.sheet_to_json(gastosSheet, { header: 1 });
+                    
+                    for (let i = 1; i < gastosData.length; i++) {
+                        const row = gastosData[i];
+                        if (row[1]) { // Si tiene categoría
+                            try {
+                                await window.firebaseFunctions.addDoc(
+                                    window.firebaseFunctions.collection(window.firebaseDB, 'gastos'),
+                                    {
+                                        categoria: row[1] || '',
+                                        proveedor: row[2] || '',
+                                        costo_estimado: parseFloat(row[3]) || 0,
+                                        costo_real: parseFloat(row[4]) || 0,
+                                        fecha_pago: row[6] || '',
+                                        pagado_por: row[7] || '',
+                                        observaciones: row[8] || '',
+                                        imported_at: new Date()
+                                    }
+                                );
+                                importados.gastos++;
+                            } catch (error) {
+                                console.error('Error importando gasto:', error);
+                            }
+                        }
+                    }
+                }
+                
+                // Importar Tareas
+                if (workbook.SheetNames.includes('Tareas')) {
+                    const tareasSheet = workbook.Sheets['Tareas'];
+                    const tareasData = XLSX.utils.sheet_to_json(tareasSheet, { header: 1 });
+                    
+                    for (let i = 1; i < tareasData.length; i++) {
+                        const row = tareasData[i];
+                        if (row[1]) { // Si tiene tarea
+                            try {
+                                await window.firebaseFunctions.addDoc(
+                                    window.firebaseFunctions.collection(window.firebaseDB, 'tareas'),
+                                    {
+                                        tarea: row[1] || '',
+                                        categoria: row[2] || '',
+                                        responsable: row[3] || '',
+                                        fecha_limite: row[4] || '',
+                                        prioridad: row[5] || 'media',
+                                        estado: row[6] || 'pendiente',
+                                        observaciones: row[7] || '',
+                                        imported_at: new Date()
+                                    }
+                                );
+                                importados.tareas++;
+                            } catch (error) {
+                                console.error('Error importando tarea:', error);
+                            }
+                        }
+                    }
+                }
+                
+                // Importar Invitados
+                if (workbook.SheetNames.includes('Invitados')) {
+                    const invitadosSheet = workbook.Sheets['Invitados'];
+                    const invitadosData = XLSX.utils.sheet_to_json(invitadosSheet, { header: 1 });
+                    
+                    for (let i = 1; i < invitadosData.length; i++) {
+                        const row = invitadosData[i];
+                        if (row[1]) { // Si tiene nombre
+                            try {
+                                await window.firebaseFunctions.addDoc(
+                                    window.firebaseFunctions.collection(window.firebaseDB, 'invitados'),
+                                    {
+                                        nombre_completo: row[1] || '',
+                                        relacion: row[2] || '',
+                                        telefono: row[3] || '',
+                                        email: row[4] || '',
+                                        estado: row[5] || 'pendiente',
+                                        acompanantes: parseInt(row[6]) || 0,
+                                        necesidades_especiales: row[7] || '',
+                                        observaciones: row[8] || '',
+                                        imported_at: new Date()
+                                    }
+                                );
+                                importados.invitados++;
+                            } catch (error) {
+                                console.error('Error importando invitado:', error);
+                            }
+                        }
+                    }
+                }
+                
+                // Recargar datos desde Firebase
+                await cargarDatos();
+                
+                // Mostrar resultado
+                statusDiv.innerHTML = `✅ ¡Importación exitosa!<br>
+                    📥 Aportes: ${importados.aportes}<br>
+                    💸 Gastos: ${importados.gastos}<br>
+                    📝 Tareas: ${importados.tareas}<br>
+                    👥 Invitados: ${importados.invitados}`;
+                statusDiv.style.color = '#4CAF50';
+                
+                // Limpiar input
+                fileInput.value = '';
+                
+                // Mostrar alerta de éxito
+                setTimeout(() => {
+                    alert(`🎉 ¡Importación completada!
+
+📊 Datos importados:
+• Aportes: ${importados.aportes}
+• Gastos: ${importados.gastos}
+• Tareas: ${importados.tareas}
+• Invitados: ${importados.invitados}
+
+Los datos ya están disponibles en la nube y sincronizados en todos tus dispositivos.`);
+                    
+                    statusDiv.innerHTML = '';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error procesando archivo:', error);
+                statusDiv.innerHTML = '❌ Error procesando archivo';
+                statusDiv.style.color = '#f44336';
+                alert('Error al procesar el archivo Excel. Verifica que el formato sea correcto.');
+            }
+        }
+        
+        // Función para exportar Excel (mejorada)
         function exportarExcel() {
             const wb = XLSX.utils.book_new();
             
@@ -1127,6 +1495,423 @@ con tus datos siempre sincronizados.`);
             const fecha = new Date().toISOString().split('T')[0];
             XLSX.writeFile(wb, `fiesta_50_aniversario_cloud_${fecha}.xlsx`);
             alert('📊 ¡Archivo Excel descargado exitosamente desde la nube! 🎉');
+        }
+        
+        // Función para mostrar ayuda de importación
+        function mostrarAyudaImportacion() {
+            alert(`📥 FORMATO PARA IMPORTAR EXCEL
+
+📋 Tu archivo Excel debe tener estas 4 hojas:
+
+🔹 Hoja 1: "Aportes"
+Columnas: ID, Nombre, Monto Comprometido, Monto Entregado, Fecha, Forma de Pago, Observaciones, Saldo
+
+🔹 Hoja 2: "Gastos" 
+Columnas: ID, Categoría, Proveedor, Costo Estimado, Costo Real, Diferencia, Fecha Pago, Pagado Por, Observaciones
+
+🔹 Hoja 3: "Tareas"
+Columnas: ID, Tarea, Categoría, Responsable, Fecha Límite, Prioridad, Estado, Observaciones
+
+🔹 Hoja 4: "Invitados"
+Columnas: ID, Nombre, Relación, Teléfono, Email, Estado, Acompañantes, Necesidades Especiales, Observaciones
+
+⚠️ IMPORTANTE:
+• Los nombres de las hojas deben ser exactos
+• La primera fila son encabezados (se ignora)
+• Los datos se AGREGAN a los existentes
+• Formatos: .xlsx o .xls
+
+💡 Usa "Descargar Plantilla" para obtener un ejemplo.`);
+        }
+        
+        // Función para descargar plantilla de Excel
+        function descargarPlantilla() {
+            const wb = XLSX.utils.book_new();
+            
+            // Plantilla Aportes
+            const aportesPlantilla = [
+                ['ID', 'Nombre', 'Monto Comprometido', 'Monto Entregado', 'Fecha', 'Forma de Pago', 'Observaciones', 'Saldo'],
+                ['1', 'Juan Pérez', '50000', '25000', '2025-01-15', 'transferencia', 'Pago parcial', '25000'],
+                ['2', 'María García', '75000', '75000', '2025-01-20', 'efectivo', 'Pago completo', '0'],
+                ['', 'Nuevo familiar', '0', '0', '', '', '', '0']
+            ];
+            const ws1 = XLSX.utils.aoa_to_sheet(aportesPlantilla);
+            XLSX.utils.book_append_sheet(wb, ws1, 'Aportes');
+            
+            // Plantilla Gastos
+            const gastosPlantilla = [
+                ['ID', 'Categoría', 'Proveedor', 'Costo Estimado', 'Costo Real', 'Diferencia', 'Fecha Pago', 'Pagado Por', 'Observaciones'],
+                ['1', 'banquete', 'Restaurante ABC', '200000', '180000', '20000', '2025-02-01', 'Juan', 'Descuento aplicado'],
+                ['2', 'musica', 'DJ Party', '50000', '55000', '-5000', '2025-02-05', 'María', 'Equipo adicional'],
+                ['', 'decoracion', 'Nuevo proveedor', '0', '0', '0', '', '', '']
+            ];
+            const ws2 = XLSX.utils.aoa_to_sheet(gastosPlantilla);
+            XLSX.utils.book_append_sheet(wb, ws2, 'Gastos');
+            
+            // Plantilla Tareas
+            const tareasPlantilla = [
+                ['ID', 'Tarea', 'Categoría', 'Responsable', 'Fecha Límite', 'Prioridad', 'Estado', 'Observaciones'],
+                ['1', 'Confirmar salón', 'planificacion', 'Carlos', '2025-01-30', 'alta', 'completada', 'Ya confirmado'],
+                ['2', 'Comprar decoración', 'decoracion', 'Ana', '2025-02-10', 'media', 'pendiente', 'Buscar presupuestos'],
+                ['', 'Nueva tarea', 'otros', '', '', 'media', 'pendiente', '']
+            ];
+            const ws3 = XLSX.utils.aoa_to_sheet(tareasPlantilla);
+            XLSX.utils.book_append_sheet(wb, ws3, 'Tareas');
+            
+            // Plantilla Invitados
+            const invitadosPlantilla = [
+                ['ID', 'Nombre', 'Relación', 'Teléfono', 'Email', 'Estado', 'Acompañantes', 'Necesidades Especiales', 'Observaciones'],
+                ['1', 'Pedro López', 'familia', '88888888', 'pedro@email.com', 'confirmado', '2', 'Sin gluten', 'Traerá esposa e hijo'],
+                ['2', 'Laura Sánchez', 'amigos', '77777777', 'laura@email.com', 'pendiente', '0', 'Vegetariana', 'Confirmar esta semana'],
+                ['', 'Nuevo invitado', 'familia', '', '', 'pendiente', '0', '', '']
+            ];
+            const ws4 = XLSX.utils.aoa_to_sheet(invitadosPlantilla);
+            XLSX.utils.book_append_sheet(wb, ws4, 'Invitados');
+            
+            // Descargar plantilla
+            XLSX.writeFile(wb, 'plantilla_importacion_fiesta.xlsx');
+            alert(`📄 ¡Plantilla descargada!
+
+🔧 INSTRUCCIONES:
+1. Abre el archivo "plantilla_importacion_fiesta.xlsx"
+2. Reemplaza los datos de ejemplo con tus datos reales
+3. Mantén los nombres de las hojas exactos
+4. Guarda el archivo
+5. Úsalo para importar a la aplicación
+
+💡 La plantilla incluye ejemplos de cada tipo de dato para guiarte.`);
+        }
+        
+        // Función para generar reporte completo
+        function generarReporteCompleto() {
+            const fecha = new Date();
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            const horaFormateada = fecha.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Calcular totales
+            const totalComprometido = aportes.reduce((sum, a) => sum + (a.monto_comprometido || 0), 0);
+            const totalRecibido = aportes.reduce((sum, a) => sum + (a.monto_entregado || 0), 0);
+            const totalGastosEstimados = gastos.reduce((sum, g) => sum + (g.costo_estimado || 0), 0);
+            const totalGastosReales = gastos.reduce((sum, g) => sum + (g.costo_real || 0), 0);
+            const balance = totalRecibido - totalGastosReales;
+            const saldoPendiente = totalComprometido - totalRecibido;
+            
+            // Estadísticas de invitados
+            const totalInvitados = invitados.length;
+            const confirmados = invitados.filter(i => i.estado === 'confirmado').length;
+            const pendientes = invitados.filter(i => i.estado === 'pendiente').length;
+            const noAsisten = invitados.filter(i => i.estado === 'no_asiste').length;
+            const totalAcompanantes = invitados.reduce((sum, i) => sum + (i.acompanantes || 0), 0);
+            
+            // Estadísticas de tareas
+            const totalTareas = tareas.length;
+            const tareasCompletadas = tareas.filter(t => t.estado === 'completada').length;
+            const tareasEnProgreso = tareas.filter(t => t.estado === 'en_progreso').length;
+            const tareasPendientes = tareas.filter(t => t.estado === 'pendiente').length;
+            
+            const reporteHTML = `
+                <div class="reporte-header">
+                    <h1>🎉 Reporte de Fiesta - 50 Aniversario</h1>
+                    <p>Generado el ${fechaFormateada} a las ${horaFormateada}</p>
+                </div>
+                
+                <!-- Resumen Ejecutivo -->
+                <div class="reporte-seccion">
+                    <div class="reporte-resumen">
+                        <h2 style="color: white; text-align: center; margin-bottom: 20px;">📊 Resumen Ejecutivo</h2>
+                        <div class="reporte-resumen-grid">
+                            <div class="reporte-resumen-item">
+                                <h4>Aportes Comprometidos</h4>
+                                <div class="valor">₡${totalComprometido.toLocaleString()}</div>
+                            </div>
+                            <div class="reporte-resumen-item">
+                                <h4>Aportes Recibidos</h4>
+                                <div class="valor">₡${totalRecibido.toLocaleString()}</div>
+                            </div>
+                            <div class="reporte-resumen-item">
+                                <h4>Saldo Pendiente</h4>
+                                <div class="valor">₡${saldoPendiente.toLocaleString()}</div>
+                            </div>
+                            <div class="reporte-resumen-item">
+                                <h4>Gastos Estimados</h4>
+                                <div class="valor">₡${totalGastosEstimados.toLocaleString()}</div>
+                            </div>
+                            <div class="reporte-resumen-item">
+                                <h4>Gastos Reales</h4>
+                                <div class="valor">₡${totalGastosReales.toLocaleString()}</div>
+                            </div>
+                            <div class="reporte-resumen-item">
+                                <h4>Balance Final</h4>
+                                <div class="valor" style="color: ${balance >= 0 ? '#4CAF50' : '#f44336'}">₡${balance.toLocaleString()}</div>
+                            </div>
+                            <div class="reporte-resumen-item">
+                                <h4>Total Invitados</h4>
+                                <div class="valor">${totalInvitados + totalAcompanantes}</div>
+                            </div>
+                            <div class="reporte-resumen-item">
+                                <h4>Tareas Completadas</h4>
+                                <div class="valor">${tareasCompletadas}/${totalTareas}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Aportes de la Familia -->
+                <div class="reporte-seccion">
+                    <h2>💰 Aportes de la Familia</h2>
+                    <table class="reporte-tabla">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Monto Comprometido</th>
+                                <th>Monto Entregado</th>
+                                <th>Fecha</th>
+                                <th>Forma de Pago</th>
+                                <th>Saldo Pendiente</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${aportes.map(aporte => {
+                                const saldo = (aporte.monto_comprometido || 0) - (aporte.monto_entregado || 0);
+                                return `
+                                    <tr>
+                                        <td>${aporte.nombre || ''}</td>
+                                        <td>₡${(aporte.monto_comprometido || 0).toLocaleString()}</td>
+                                        <td>₡${(aporte.monto_entregado || 0).toLocaleString()}</td>
+                                        <td>${aporte.fecha_aporte || ''}</td>
+                                        <td>${aporte.forma_pago || ''}</td>
+                                        <td style="color: ${saldo > 0 ? '#d32f2f' : '#388e3c'}">₡${saldo.toLocaleString()}</td>
+                                        <td>${aporte.observaciones || ''}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Gastos de la Fiesta -->
+                <div class="reporte-seccion">
+                    <h2>💸 Gastos de la Fiesta</h2>
+                    <table class="reporte-tabla">
+                        <thead>
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Proveedor</th>
+                                <th>Costo Estimado</th>
+                                <th>Costo Real</th>
+                                <th>Diferencia</th>
+                                <th>Fecha Pago</th>
+                                <th>Pagado Por</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${gastos.map(gasto => {
+                                const diferencia = (gasto.costo_estimado || 0) - (gasto.costo_real || 0);
+                                return `
+                                    <tr>
+                                        <td>${obtenerTextoCategoria(gasto.categoria)}</td>
+                                        <td>${gasto.proveedor || ''}</td>
+                                        <td>₡${(gasto.costo_estimado || 0).toLocaleString()}</td>
+                                        <td>₡${(gasto.costo_real || 0).toLocaleString()}</td>
+                                        <td style="color: ${diferencia >= 0 ? '#388e3c' : '#d32f2f'}">₡${diferencia.toLocaleString()}</td>
+                                        <td>${gasto.fecha_pago || ''}</td>
+                                        <td>${gasto.pagado_por || ''}</td>
+                                        <td>${gasto.observaciones || ''}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Tareas -->
+                <div class="reporte-seccion">
+                    <h2>📝 Control de Tareas</h2>
+                    <table class="reporte-tabla">
+                        <thead>
+                            <tr>
+                                <th>Tarea</th>
+                                <th>Categoría</th>
+                                <th>Responsable</th>
+                                <th>Fecha Límite</th>
+                                <th>Prioridad</th>
+                                <th>Estado</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tareas.map(tarea => `
+                                <tr>
+                                    <td>${tarea.tarea || ''}</td>
+                                    <td>${obtenerTextoCategoriaTarea(tarea.categoria)}</td>
+                                    <td>${tarea.responsable || ''}</td>
+                                    <td>${tarea.fecha_limite || ''}</td>
+                                    <td>${obtenerTextoPrioridad(tarea.prioridad)}</td>
+                                    <td>${obtenerTextoEstado(tarea.estado)}</td>
+                                    <td>${tarea.observaciones || ''}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Invitados -->
+                <div class="reporte-seccion">
+                    <h2>👥 Lista de Invitados</h2>
+                    <div style="margin-bottom: 20px;">
+                        <strong>Resumen:</strong> 
+                        Confirmados: ${confirmados} | 
+                        Pendientes: ${pendientes} | 
+                        No asisten: ${noAsisten} | 
+                        Total con acompañantes: ${totalInvitados + totalAcompanantes}
+                    </div>
+                    <table class="reporte-tabla">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Relación</th>
+                                <th>Teléfono</th>
+                                <th>Email</th>
+                                <th>Estado</th>
+                                <th>Acompañantes</th>
+                                <th>Necesidades Especiales</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${invitados.map(invitado => `
+                                <tr>
+                                    <td>${invitado.nombre_completo || ''}</td>
+                                    <td>${obtenerTextoRelacion(invitado.relacion)}</td>
+                                    <td>${invitado.telefono || ''}</td>
+                                    <td>${invitado.email || ''}</td>
+                                    <td>${obtenerTextoEstadoInvitado(invitado.estado)}</td>
+                                    <td>${invitado.acompanantes || 0}</td>
+                                    <td>${invitado.necesidades_especiales || ''}</td>
+                                    <td>${invitado.observaciones || ''}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="reporte-footer">
+                    <p><strong>Organizador de Fiesta - 50 Aniversario</strong></p>
+                    <p>Reporte generado automáticamente desde la base de datos en la nube</p>
+                    <p>Fecha de generación: ${fechaFormateada} - ${horaFormateada}</p>
+                </div>
+            `;
+            
+            document.getElementById('reporteCompleto').innerHTML = reporteHTML;
+            alert('📋 ¡Reporte generado exitosamente!\n\nAhora puedes hacer clic en "🖨️ Imprimir PDF" para descargarlo.');
+        }
+        
+        // Funciones auxiliares para obtener texto legible
+        function obtenerTextoCategoria(categoria) {
+            const categorias = {
+                'banquete': '🍽️ Banquete',
+                'musica': '🎵 Música',
+                'decoracion': '🎀 Decoración',
+                'fotografia': '📸 Fotografía',
+                'otros': '📦 Otros'
+            };
+            return categorias[categoria] || categoria || '';
+        }
+        
+        function obtenerTextoCategoriaTarea(categoria) {
+            const categorias = {
+                'planificacion': '📋 Planificación',
+                'decoracion': '🎀 Decoración',
+                'comida': '🍽️ Comida',
+                'musica': '🎵 Música',
+                'invitaciones': '💌 Invitaciones',
+                'logistica': '🚛 Logística',
+                'otros': '📦 Otros'
+            };
+            return categorias[categoria] || categoria || '';
+        }
+        
+        function obtenerTextoPrioridad(prioridad) {
+            const prioridades = {
+                'baja': '🟢 Baja',
+                'media': '🟡 Media',
+                'alta': '🔴 Alta'
+            };
+            return prioridades[prioridad] || prioridad || '';
+        }
+        
+        function obtenerTextoEstado(estado) {
+            const estados = {
+                'pendiente': '⏳ Pendiente',
+                'en_progreso': '🚧 En Progreso',
+                'completada': '✅ Completada'
+            };
+            return estados[estado] || estado || '';
+        }
+        
+        function obtenerTextoRelacion(relacion) {
+            const relaciones = {
+                'familia': '👨‍👩‍👧‍👦 Familia',
+                'amigos': '👥 Amigos',
+                'trabajo': '💼 Trabajo',
+                'vecinos': '🏘️ Vecinos',
+                'otros': '👤 Otros'
+            };
+            return relaciones[relacion] || relacion || '';
+        }
+        
+        function obtenerTextoEstadoInvitado(estado) {
+            const estados = {
+                'pendiente': '⏳ Pendiente',
+                'confirmado': '✅ Confirmado',
+                'no_asiste': '❌ No Asiste'
+            };
+            return estados[estado] || estado || '';
+        }
+        
+        // Función para imprimir reporte
+        function imprimirReporte() {
+            const reporte = document.getElementById('reporteCompleto');
+            
+            if (!reporte.innerHTML.trim()) {
+                alert('⚠️ Primero debes generar el reporte haciendo clic en "📋 Generar Reporte Completo"');
+                return;
+            }
+            
+            // Abrir ventana de impresión
+            window.print();
+            
+            // Mostrar instrucciones
+            setTimeout(() => {
+                alert(`🖨️ INSTRUCCIONES PARA IMPRIMIR EN PDF:
+
+📋 EN WINDOWS:
+1. En la ventana de impresión, selecciona "Microsoft Print to PDF"
+2. Haz clic en "Imprimir"
+3. Elige dónde guardar el archivo PDF
+
+📋 EN MAC:
+1. En la ventana de impresión, haz clic en "PDF"
+2. Selecciona "Guardar como PDF"
+3. Elige la ubicación para guardar
+
+📋 EN CHROME/EDGE:
+1. En la ventana de impresión, cambia el destino a "Guardar como PDF"
+2. Ajusta las opciones si es necesario
+3. Haz clic en "Guardar"
+
+💡 El reporte incluye todos los datos de la fiesta organizados por categorías, listo para imprimir o enviar por email.`);
+            }, 1000);
         }
     </script>
 </body>

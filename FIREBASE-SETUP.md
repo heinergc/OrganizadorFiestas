@@ -16,16 +16,49 @@
 3. Selecciona **"Empezar en modo de prueba"** (por ahora)
 4. Elige la ubicación más cercana (ej: `us-central1`)
 
-### 3. Configurar Reglas de Seguridad
+### 3. Configurar Reglas de Seguridad ⚠️ IMPORTANTE
 
-En la pestaña "Reglas" de Firestore, reemplaza el contenido con:
+🚨 **ESTE ES EL PASO MÁS CRÍTICO** - El error "Missing or insufficient permissions" se debe a reglas incorrectas.
+
+**En Firebase Console:**
+
+1. Ve a **Firestore Database** 
+2. Haz clic en la pestaña **"Reglas"**
+3. **REEMPLAZA TODO** el contenido con estas reglas:
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permitir acceso completo por ahora (para testing)
-    // CAMBIAR EN PRODUCCIÓN por reglas más seguras
+    // REGLAS PARA DESARROLLO - Permiten acceso completo
+    // ⚠️ CAMBIAR EN PRODUCCIÓN por reglas más seguras
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+```
+
+4. **¡MUY IMPORTANTE!** Haz clic en **"Publicar"** para guardar los cambios
+
+### 🔴 Error Común: "Missing or insufficient permissions"
+
+**Si ves este error:**
+```
+FirebaseError: Missing or insufficient permissions.
+```
+
+**Solución:**
+1. ✅ Verifica que las reglas estén publicadas (botón "Publicar")
+2. ✅ Espera 1-2 minutos para que se propaguen los cambios
+3. ✅ Recarga la página de tu aplicación
+4. ✅ Verifica que no hay espacios extra en las reglas
+
+**Reglas que SÍ funcionan:**
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
     match /{document=**} {
       allow read, write: if true;
     }
@@ -146,6 +179,45 @@ Firebase ofrece una capa gratuita que incluye:
 - 1GB de almacenamiento
 
 Para una fiesta familiar, esto es más que suficiente.
+
+## 🆘 Solución de Problemas
+
+### 🔴 Error: "Missing or insufficient permissions"
+
+**Este es el error más común. Solución paso a paso:**
+
+1. **Ve a Firebase Console** → Tu proyecto → Firestore Database
+2. **Haz clic en "Reglas"** (pestaña al lado de "Datos")
+3. **Verifica que las reglas sean exactamente así:**
+   ```javascript
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /{document=**} {
+         allow read, write: if true;
+       }
+     }
+   }
+   ```
+4. **¡CRÍTICO!** Haz clic en **"Publicar"** (botón azul)
+5. **Espera 1-2 minutos** para que los cambios se propaguen
+6. **Recarga tu aplicación web**
+
+### 🔴 Error: "Firebase project not found"
+
+- Verifica que el `projectId` en tu configuración coincida exactamente con el ID del proyecto en Firebase Console
+
+### 🔴 Error: "Network request failed"
+
+- Verifica tu conexión a internet
+- Asegúrate de que Firebase esté configurado correctamente
+
+### ✅ Cómo Verificar que Funciona
+
+1. Abre la consola del navegador (F12)
+2. Si no hay errores rojos, ¡está funcionando!
+3. Intenta agregar un dato en la aplicación
+4. Ve a Firebase Console → Firestore → Datos para ver si se guardó
 
 ## 🆘 Soporte
 
